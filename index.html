@@ -184,9 +184,54 @@ const list=document.getElementById('requestList');
 if(!requests.length){list.innerHTML='<p class="muted">Заявок пока нет.</p>';return;}
 list.innerHTML=requests.map(r=>'<div class="request"><b>'+r.id+'</b><p>'+r.amount+' '+r.from+' → '+r.to+'</p><span class="status">'+r.status+'</span><p class="muted">'+r.date+'</p><p class="muted">Контакт: '+escapeText(r.contact||'не указан')+'</p></div>').join('');
 }
-function clearRequests(){
-if(confirm('Удалить все демо-заявки?')){requests=[];renderRequests();}
-}
+  async function loginUser() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const message = document.getElementById('authMessage');
+
+  if (!email || !password) {
+    message.textContent = 'Введите email и пароль.';
+    return;
+  }
+
+  if (!supabaseClient) {
+    message.textContent = 'Система входа не загрузилась. Обновите страницу.';
+    return;
+  }
+
+  message.textContent = 'Выполняется вход...';
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    document.getElementById('accountEmail').textContent = data.user.email || email;
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .maybeSingle();
+
+    document.getElementById('accountRole').textContent =
+      profile && profile.role ? profile.role : 'customer';
+
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('accountPanel').style.display = 'block';
+
+    document.getElementById('accountMessage').textContent =
+      profileError
+        ? 'Вход выполнен, но роль не загрузилась.'
+        : 'Вход выполнен успешно!';
+
+  } catch (error) {
+    message.textContent = 'Ошибка входа: ' + error.message;
+  }
+} 
 async function loginUser() {
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
