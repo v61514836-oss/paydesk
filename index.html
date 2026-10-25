@@ -51,6 +51,14 @@ footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
 
   <p id="authMessage" class="muted"></p>
 </section>
+ <section id="accountPanel" style="display:none;max-width:760px;margin:18px auto;padding:18px;background:white;border-radius:16px;">
+  <h2>Личный кабинет</h2>
+  <p>Статус: <strong id="loginStatus">Вы вошли</strong></p>
+  <p>Email: <span id="accountEmail"></span></p>
+  <p>Роль: <span id="accountRole">Клиент</span></p>
+  <button onclick="logoutUser()">Выйти из аккаунта</button>
+  <p id="accountMessage" role="status" aria-live="polite"></p>
+</section>
  <main>
 <div class="card">
 <h2>Добро пожаловать</h2>
@@ -190,6 +198,39 @@ async function loginUser() {
 
     if (error) throw error;
 
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .maybeSingle();
+
+    document.getElementById('accountEmail').textContent = data.user.email || email;
+    document.getElementById('accountRole').textContent =
+      profile && profile.role ? profile.role : 'customer';
+
+    document.getElementById('authPanel').style.display = 'none';
+    document.getElementById('accountPanel').style.display = 'block';
+
+    document.getElementById('accountMessage').textContent =
+      profileError
+        ? 'Вход выполнен, но роль пока не удалось загрузить.'
+        : 'Вход выполнен успешно! Добро пожаловать в PayDesk.';
+
+  } catch (error) {
+    message.textContent = 'Ошибка входа: ' + error.message;
+  }
+}
+
+  message.textContent = 'Выполняется вход...';
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
     message.textContent = 'Вход выполнен!';
     document.getElementById('authPanel').style.display = 'none';
   } catch (error) {
@@ -228,6 +269,19 @@ async function registerUser() {
   } catch (error) {
     message.textContent = 'Ошибка регистрации: ' + error.message;
   }
+}
+ async function logoutUser() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    document.getElementById('accountMessage').textContent =
+      'Не удалось выйти: ' + error.message;
+    return;
+  }
+
+  document.getElementById('accountPanel').style.display = 'none';
+  document.getElementById('authPanel').style.display = 'block';
+  document.getElementById('authMessage').textContent = 'Вы вышли из аккаунта.';
 }
  </script>
 </body>
