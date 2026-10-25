@@ -220,25 +220,7 @@ async function loginUser() {
     message.textContent = 'Ошибка входа: ' + error.message;
   }
 }
-
-  message.textContent = 'Выполняется вход...';
-
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) throw error;
-
-    message.textContent = 'Вход выполнен!';
-    document.getElementById('authPanel').style.display = 'none';
-  } catch (error) {
-    message.textContent = 'Ошибка входа: ' + error.message;
-  }
-}
-
-async function registerUser() {
+  async function registerUser() {
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   const message = document.getElementById('authMessage');
