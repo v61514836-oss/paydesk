@@ -34,7 +34,24 @@ footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
 <h1>PayDesk</h1>
 <p>Платформа обмена валют · DEMO</p>
 </header>
-<main>
+<section id="authPanel" style="max-width:760px;margin:18px auto;padding:18px;background:white;border-radius:16px;">
+  <h2>Вход в PayDesk</h2>
+  <p>Войди в аккаунт, чтобы работать со своими заявками.</p>
+
+  <label for="authEmail">Email</label>
+  <input id="authEmail" type="email" placeholder="Твой email"
+    style="width:100%;padding:12px;margin:6px 0;border:1px solid #d5deea;border-radius:10px;">
+
+  <label for="authPassword">Пароль</label>
+  <input id="authPassword" type="password" placeholder="Пароль"
+    style="width:100%;padding:12px;margin:6px 0;border:1px solid #d5deea;border-radius:10px;">
+
+  <button onclick="loginUser()" style="width:100%;margin-top:12px;">Войти</button>
+  <button class="secondary" onclick="registerUser()" style="width:100%;margin-top:8px;">Регистрация</button>
+
+  <p id="authMessage" class="muted"></p>
+</section>
+ <main>
 <div class="card">
 <h2>Добро пожаловать</h2>
 <p>Создавайте тестовые заявки и отслеживайте их статус.</p>
@@ -153,6 +170,65 @@ list.innerHTML=requests.map(r=>'<div class="request"><b>'+r.id+'</b><p>'+r.amoun
 function clearRequests(){
 if(confirm('Удалить все демо-заявки?')){requests=[];renderRequests();}
 }
-</script>
+async function loginUser() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const message = document.getElementById('authMessage');
+
+  if (!email || !password) {
+    message.textContent = 'Введите email и пароль.';
+    return;
+  }
+
+  message.textContent = 'Выполняется вход...';
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    message.textContent = 'Вход выполнен!';
+    document.getElementById('authPanel').style.display = 'none';
+  } catch (error) {
+    message.textContent = 'Ошибка входа: ' + error.message;
+  }
+}
+
+async function registerUser() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const message = document.getElementById('authMessage');
+
+  if (!email || !password) {
+    message.textContent = 'Введите email и пароль.';
+    return;
+  }
+
+  if (password.length < 8) {
+    message.textContent = 'Пароль должен содержать минимум 8 символов.';
+    return;
+  }
+
+  message.textContent = 'Создаём аккаунт...';
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    message.textContent = data.session
+      ? 'Аккаунт создан. Теперь войдите.'
+      : 'Аккаунт создан. Проверьте почту для подтверждения регистрации.';
+  } catch (error) {
+    message.textContent = 'Ошибка регистрации: ' + error.message;
+  }
+}
+ </script>
 </body>
 </html>
