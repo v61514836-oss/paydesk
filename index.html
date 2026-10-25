@@ -110,11 +110,20 @@ footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
  <script>
  const SUPABASE_URL = 'https://xnaiqqlfewgpkylzcneg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_K319xCjRcAFFlP2nZU2XLQ_lhu8tcyo';
+let supabaseClient = null;
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+try {
+  if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+    throw new Error('Библиотека входа не загрузилась.');
+  }
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+} catch (error) {
+  console.error('Ошибка PayDesk:', error);
+}
 let requests=[];
 function showTab(tab){
 ['exchange','requests','admin'].forEach(id=>{
