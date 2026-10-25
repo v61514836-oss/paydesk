@@ -100,18 +100,50 @@ function escapeText(s){
 return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function createRequest(){
-const amount=Number(document.getElementById('amount').value);
-const from=document.getElementById('from').value;
-const to=document.getElementById('to').value;
-const contact=document.getElementById('contact').value.trim();
-const msg=document.getElementById('message');
-if(!Number.isFinite(amount)||amount<=0){msg.textContent='Введите сумму больше нуля.';return;}
-if(from===to){msg.textContent='Выберите разные валюты.';return;}
-const req={id:'PD-'+Date.now().toString().slice(-8),amount,from,to,contact,status:'Создана',date:new Date().toLocaleString('ru-RU')};
-requests.unshift(req);
-document.getElementById('amount').value='';
-msg.textContent='Заявка создана: '+req.id;
-renderRequests();
+  const amount = Number(document.getElementById('amount').value);
+  const from = document.getElementById('from').value;
+  const to = document.getElementById('to').value;
+  const contact = document.getElementById('contact').value.trim();
+  const msg = document.getElementById('message');
+  const button = document.querySelector('button[onclick="createRequest()"]');
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    msg.textContent = 'Введите сумму больше нуля.';
+    return;
+  }
+
+  if (from === to) {
+    msg.textContent = 'Выберите разные валюты.';
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Создаём заявку…';
+  msg.textContent = 'Обрабатываем запрос…';
+
+  try {
+    const req = {
+      id: 'PD-' + Date.now().toString().slice(-8),
+      amount,
+      from,
+      to,
+      contact,
+      status: 'Создана',
+      date: new Date().toLocaleString('ru-RU')
+    };
+
+    requests.unshift(req);
+    renderRequests();
+
+    document.getElementById('amount').value = '';
+    msg.textContent = 'Демо-заявка создана: ' + req.id;
+  } catch (error) {
+    msg.textContent = 'Не удалось создать заявку. Попробуйте ещё раз.';
+    console.error(error);
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Создать демо-заявку';
+  }
 }
 function renderRequests(){
 const list=document.getElementById('requestList');
