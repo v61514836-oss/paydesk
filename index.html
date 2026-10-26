@@ -433,6 +433,38 @@ async function login(){
   }
 }
 
+async function sendPasswordReset(){
+  if(!db){
+    message('authMessage','Supabase не загрузился. Обнови страницу.');
+    return;
+  }
+
+  const email=$('authEmail').value.trim();
+
+  if(!email){
+    message('authMessage','Сначала введи свой email.');
+    return;
+  }
+
+  const btn=$('resetPasswordButton');
+  btn.disabled=true;
+  message('authMessage','Отправляем письмо…');
+
+  try{
+    const {error}=await db.auth.resetPasswordForEmail(email,{
+      redirectTo:'https://v61514836-oss.github.io/paydesk/?reset=1'
+    });
+
+    if(error) throw error;
+
+    message('authMessage','Если аккаунт существует, письмо для восстановления отправлено. Проверь почту и папку «Спам».');
+  }catch(e){
+    message('authMessage','Не удалось отправить письмо: '+e.message);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
 async function register(){
   if(!db){message('authMessage','Не загрузилась библиотека Supabase. Обнови страницу.');return;}
   const email=$('authEmail').value.trim();
