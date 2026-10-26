@@ -510,6 +510,40 @@ async function logout(){
   message('authMessage','Ты вышел из аккаунта.');
 }
 
+async function saveNewPassword(){
+  const password=$('newPassword').value;
+
+  if(password.length<8){
+    message('passwordRecoveryMessage','Пароль должен содержать минимум 8 символов.');
+    return;
+  }
+
+  const btn=$('saveNewPasswordButton');
+  btn.disabled=true;
+  message('passwordRecoveryMessage','Сохраняем новый пароль…');
+
+  try{
+    const {error}=await db.auth.updateUser({password});
+    if(error) throw error;
+
+    $('newPassword').value='';
+    $('passwordRecoveryPanel').classList.add('hidden');
+    $('authPanel').classList.remove('hidden');
+    message('authMessage','Пароль изменён. Теперь войди с новым паролем.');
+    history.replaceState(null,'',window.location.pathname);
+  }catch(e){
+    message('passwordRecoveryMessage','Ошибка: '+e.message);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function showPasswordRecovery(){
+  $('authPanel').classList.add('hidden');
+  $('accountPanel').classList.add('hidden');
+  $('passwordRecoveryPanel').classList.remove('hidden');
+}
+
 async function restore(){
   if(!db){message('authMessage','Supabase не загрузился. Проверь интернет и обнови страницу.');return;}
   try{
