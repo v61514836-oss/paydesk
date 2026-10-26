@@ -780,7 +780,7 @@ const role = rolesById[item.sender_id];
 if (item.sender_id === user.id) {
   who.textContent = 'Ты';
 } else {
-  who.textContent = role === 'admin' ? '🛡️ PayDesk Команда' :
+  who.textContent = '';
     role === 'partner' ? '🤝 PayDesk Партнёр' : 'PayDesk Клиент';
 }
 
