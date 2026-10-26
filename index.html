@@ -539,6 +539,52 @@ function renderRequests(){
   }).join('');
 }
 
+function chatReadKey(requestId) {
+  return 'paydesk_chat_read_' + user.id + '_' + requestId;
+}
+
+function markChatRead(requestId, messages) {
+  const latest = messages.reduce((max, item) => {
+    const time = new Date(item.created_at).getTime();
+    return time > max ? time : max;
+  }, 0);
+
+  localStorage.setItem(chatReadKey(requestId), String(latest));
+}
+
+async function updateUnreadCount() {
+  if (!db || !user) return;
+
+  try {
+    const { data, error } = await db
+      .from('chat_messages')
+      .select('request_id, sender_id, created_at')
+      .neq('sender_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+
+    const unreadRequests = new Set();
+
+    (data || []).forEach(item => {
+      const key = chatReadKey(item.request_id);
+      const lastRead = Number(localStorage.getItem(key) || 0);
+      const sentAt = new Date(item.created_at).getTime();
+
+      if (sentAt > lastRead && item.request_id !== activeChatRequestId) {
+        unreadRequests.add(item.request_id);
+      }
+    });
+
+    const badge = $('chatUnreadBadge');
+    badge.textContent = String(unreadRequests.size);
+    badge.hidden = unreadRequests.size === 0;
+  } catch (e) {
+    console.warn('Не удалось обновить счётчик чатов:', e.message);
+  }
+}
+
 async function openRequestChat(requestId) {
   if (!db || !user) {
     message('chatStatus', 'Сначала войди в аккаунт.');
