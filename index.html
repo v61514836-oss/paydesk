@@ -544,24 +544,6 @@ function showPasswordRecovery(){
   $('passwordRecoveryPanel').classList.remove('hidden');
 }
 
-async function restore(){
-  if(!db){message('authMessage','Supabase не загрузился. Проверь интернет и обнови страницу.');return;}
-  try{
-    const {data,error}=await db.auth.getSession();
-    if(error)throw error;
-    const account=data?.session?.user;
-    if(!account){
-      loggedOut();
-      message('requestMessage','Войди в аккаунт, чтобы увидеть заявки.');
-      return;
-    }
-    loggedIn(account,await profileRole(account.id));
-    message('accountMessage','Сессия восстановлена.');
-    await loadRequests();
-  }catch(e){
-    message('authMessage','Ошибка подключения: '+(e.message||'неизвестная ошибка'));
-  }
-}
 
 async function createRequest(){
   if(!db){message('createMessage','Нет подключения к Supabase.');return;}
