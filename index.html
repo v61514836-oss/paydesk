@@ -24,6 +24,39 @@ button:disabled{opacity:.55}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 nav button{flex:1;min-width:90px}
 .hidden{display:none!important}
+  #chatPanel.chat-open {
+  position: fixed;
+  inset: 8px;
+  z-index: 9999;
+  margin: 0;
+  height: calc(100dvh - 16px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+#chatMessages {
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px;
+  border: 1px solid #e1e8f1;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+#chatPanel #chatInput {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+
+#chatPanel #sendChatButton,
+#chatPanel #closeChatButton {
+  flex-shrink: 0;
+  margin-top: 8px;
+}
 .muted{font-size:13px;color:#748197;overflow-wrap:anywhere}
 .status{display:inline-block;background:#fff1ce;color:#875c00;padding:5px 9px;border-radius:20px;font-size:12px}
 .request{border:1px solid #e1e8f1;border-radius:12px;padding:13px;margin-top:10px;overflow-wrap:anywhere}
@@ -492,6 +525,7 @@ async function openRequestChat(requestId) {
 
   activeChatRequestId = String(requestId);
   $('chatPanel').classList.remove('hidden');
+$('chatPanel').classList.add('chat-open');
   $('chatTitle').textContent = 'Чат по заявке PD-' + requestId;
  await loadChatMessages();
 if (chatRefreshTimer) clearInterval(chatRefreshTimer);
