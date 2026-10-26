@@ -1,0 +1,235 @@
+
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PayDesk — Администратор</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2f5fa;color:#18263d;font:16px Arial,sans-serif}
+header{background:#102b55;color:#fff;padding:20px}
+main{max-width:850px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:12px;padding:16px;margin:14px 0;box-shadow:0 3px 15px #0000000a}
+input,select,button{width:100%;padding:12px;margin:6px 0;border:1px solid #ccd6e4;border-radius:8px;font:inherit}
+button{background:#1769e0;color:white;border:0;font-weight:bold}
+.secondary{background:#e8f0fd;color:#1455a8}
+.hidden{display:none!important}
+.item{border:1px solid #e0e7f0;border-radius:9px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.muted{font-size:13px;color:#69788f;overflow-wrap:anywhere}
+label{display:block;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>PayDesk</h1>
+<p>Панель администратора</p>
+</header>
+<main>
+<section id="login" class="card">
+<h2>Вход администратора</h2>
+<label>Email аккаунта PayDesk</label>
+<input id="email" type="email" autocomplete="username">
+<label>Пароль аккаунта PayDesk</label>
+<input id="password" type="password" autocomplete="current-password">
+<button id="loginBtn">Войти</button>
+<p id="loginMsg" class="muted"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="card">
+<strong id="who"></strong>
+<button id="refresh" class="secondary">Обновить данные</button>
+<button id="logout" class="secondary">Выйти</button>
+<p id="msg" class="muted"></p>
+</div>
+<div class="card">
+<h2>Заявки</h2>
+<div id="requests">Нажми «Обновить данные».</div>
+</div>
+<div class="card">
+<h2>Роли пользователей</h2>
+<p class="muted">Выдавай роль партнёра только проверенным аккаунтам.</p>
+<div id="profiles">Нажми «Обновить данные».</div>
+</div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+'use strict';
+
+const SUPABASE_URL='https://xnaiqqlfewgpkylzcneg.supabase.co';
+const SUPABASE_KEY='sb_publishable_K319xCjRcAFFlP2nZU2XLQ_lhu8tcyo';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let user=null;
+
+function esc(v){
+ return String(v??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+function say(id,text){$(id).textContent=text;}
+
+async function getRole(id){
+ const {data,error}=await db.from('profiles')
+  .select('role').eq('id',id).maybeSingle();
+ if(error)throw error;
+ return data?.role||'customer';
+}
+
+async function login(){
+ const email=$('email').value.trim();
+ const password=$('password').value;
+ if(!email||!password){say('loginMsg','Введи email и пароль.');return;}
+ $('loginBtn').disabled=true;
+ say('loginMsg','Выполняется вход…');
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  user=data.user;
+  const role=await getRole(user.id);
+  if(role!=='admin'){
+   await db.auth.signOut();
+   user=null;
+   say('loginMsg','У этого аккаунта нет роли admin.');
+   return;
+  }
+  $('login').classList.add('hidden');
+  $('dashboard').classList.remove('hidden');
+  $('who').textContent='Администратор: '+(user.email||user.id);
+  await loadData();
+ }catch(e){
+  say('loginMsg','Ошибка: '+e.message);
+ }finally{
+  $('loginBtn').disabled=false;
+ }
+}
+
+async function loadData(){
+ if(!user)return;
+ say('msg','Загружаем данные…');
+ try{
+  if(await getRole(user.id)!=='admin')throw new Error('Нет прав администратора');
+
+  const [rq,pr]=await Promise.all([
+   db.from('exchange_requests')
+    .select('id,customer_id,partner_id,from_country,from_currency,to_currency,amount,contact,status,created_at')
+    .order('created_at',{ascending:false}).limit(100),
+   db.from('profiles').select('id,role').limit(100)
+  ]);
+
+  if(rq.error)throw new Error('Заявки: '+rq.error.message);
+  if(pr.error)throw new Error('Профили: '+pr.error.message);
+
+  const labels={
+   new:'Новая',processing:'В обработке',
+   completed:'Завершена',cancelled:'Отменена'
+  };
+
+  $('requests').innerHTML=(rq.data||[]).length
+   ?rq.data.map(r=>`
+    <div class="item">
+     <strong>Заявка #${esc(r.id)}</strong>
+     <p>${esc(r.amount)} ${esc(r.from_currency)} → ${esc(r.to_currency)}</p>
+     <p>Страна: ${esc(r.from_country||'—')}</p>
+     <p>Статус: ${esc(labels[r.status]||r.status||'—')}</p>
+     <p>Контакт: ${esc(r.contact||'не указан')}</p>
+     <label>Изменить статус</label>
+     <select id="status-${esc(r.id)}">
+      ${['new','processing','completed','cancelled'].map(s=>
+       `<option value="${s}" ${r.status===s?'selected':''}>${labels[s]}</option>`
+      ).join('')}
+     </select>
+     <button data-status="${esc(r.id)}">Сохранить статус</button>
+    </div>`).join('')
+   :'<p class="muted">Заявок пока нет.</p>';
+
+  $('profiles').innerHTML=(pr.data||[]).length
+   ?pr.data.map(p=>`
+    <div class="item">
+     <p class="muted">ID: ${esc(p.id)}</p>
+     <label>Роль</label>
+     <select id="role-${esc(p.id)}">
+      ${['customer','partner','admin'].map(role=>
+       `<option value="${role}" ${p.role===role?'selected':''}>${role}</option>`
+      ).join('')}
+     </select>
+     <button data-role="${esc(p.id)}">Сохранить роль</button>
+    </div>`).join('')
+   :'<p class="muted">Профили не найдены.</p>';
+
+  say('msg','Загружено заявок: '+(rq.data||[]).length+
+   '; профилей: '+(pr.data||[]).length+'.');
+ }catch(e){
+  say('msg','Ошибка загрузки: '+e.message+
+   '. Возможно, действие запрещено политиками Supabase.');
+ }
+}
+
+async function saveStatus(id){
+ try{
+  if(!user||await getRole(user.id)!=='admin')throw new Error('Нет прав');
+  const status=$('status-'+id).value;
+  if(!['new','processing','completed','cancelled'].includes(status))return;
+  const {error}=await db.from('exchange_requests')
+   .update({status}).eq('id',id);
+  if(error)throw error;
+  say('msg','Статус обновлён.');
+  await loadData();
+ }catch(e){say('msg','Статус не сохранён: '+e.message);}
+}
+
+async function saveRole(id){
+ try{
+  if(!user||await getRole(user.id)!=='admin')throw new Error('Нет прав');
+  if(id===user.id){
+   say('msg','Свою роль здесь менять нельзя.');
+   return;
+  }
+  const role=$('role-'+id).value;
+  if(!['customer','partner','admin'].includes(role))return;
+  const {error}=await db.from('profiles').update({role}).eq('id',id);
+  if(error)throw error;
+  say('msg','Роль обновлена.');
+  await loadData();
+ }catch(e){say('msg','Роль не сохранена: '+e.message);}
+}
+
+$('loginBtn').addEventListener('click',login);
+$('refresh').addEventListener('click',loadData);
+$('logout').addEventListener('click',async()=>{
+ await db.auth.signOut();
+ user=null;
+ $('dashboard').classList.add('hidden');
+ $('login').classList.remove('hidden');
+ say('loginMsg','Ты вышел из аккаунта.');
+});
+$('requests').addEventListener('click',e=>{
+ const b=e.target.closest('[data-status]');
+ if(b)saveStatus(b.dataset.status);
+});
+$('profiles').addEventListener('click',e=>{
+ const b=e.target.closest('[data-role]');
+ if(b)saveRole(b.dataset.role);
+});
+
+db.auth.getSession().then(async({data,error})=>{
+ if(error)throw error;
+ if(data.session){
+  user=data.session.user;
+  if(await getRole(user.id)==='admin'){
+   $('login').classList.add('hidden');
+   $('dashboard').classList.remove('hidden');
+   $('who').textContent='Администратор: '+(user.email||user.id);
+   await loadData();
+  }
+ }
+}).catch(e=>say('loginMsg','Ошибка сессии: '+e.message));
+
+})();
+</script>
+</body>
+</html>
