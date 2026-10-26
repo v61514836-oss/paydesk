@@ -379,7 +379,8 @@ async function createRequest() {
 
   const amount = Number(document.getElementById('amount').value);
   const from = document.getElementById('from').value;
-  const to = document.getElementById('to').value;
+const fromCountry = document.getElementById('fromCountry').value;
+const to = 'USDT';
   const contact = document.getElementById('contact').value.trim();
   const msg = document.getElementById('message');
   const button = document.getElementById('createButton');
@@ -414,6 +415,7 @@ async function createRequest() {
       .from('exchange_requests')
       .insert({
         customer_id: user.id,
+       from_country: fromCountry,
         partner_id: null,
         from_currency: from,
         to_currency: to,
