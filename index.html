@@ -491,9 +491,11 @@ function renderRequests() {
       '<p>' + escapeText(r.amount) + ' ' + escapeText(r.from_currency) +
       ' → ' + escapeText(r.to_currency) + '</p>' +
       '<span class="status">' + escapeText(statusLabels[r.status] || r.status) + '</span>' +
-      '<p class="muted">' + escapeText(date) + '</p>' +
-    
+            '<p class="muted">' + escapeText(date) + '</p>' +
+      '</div>';
   }).join('');
+    
+  
 }
 
 document.addEventListener('DOMContentLoaded', restoreSession);
