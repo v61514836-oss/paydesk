@@ -637,6 +637,7 @@ $('closeChatButton').addEventListener('click', () => {
   if (chatRefreshTimer) clearInterval(chatRefreshTimer);
   chatRefreshTimer = null;
   activeChatRequestId = null;
+  $('chatPanel').classList.remove('chat-open');
   $('chatPanel').classList.add('hidden');
 });
 
