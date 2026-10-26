@@ -76,7 +76,65 @@ footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
 
 <section id="exchange">
 <div class="card">
-<h2>Создать заявку</h2>
+  <h2>Создать заявку</h2>
+
+  <label for="fromCountry">Страна отправления</label>
+  <select id="fromCountry" required>
+    <option value="Germany">Германия</option>
+    <option value="Poland">Польша</option>
+    <option value="Czechia">Чехия</option>
+    <option value="Romania">Румыния</option>
+    <option value="Netherlands">Нидерланды</option>
+    <option value="France">Франция</option>
+    <option value="Italy">Италия</option>
+    <option value="Spain">Испания</option>
+    <option value="Ukraine">Украина</option>
+    <option value="Other">Другая страна</option>
+  </select>
+
+  <label for="from">Отдаёте</label>
+  <select id="from" required>
+    <option value="EUR">EUR — евро</option>
+    <option value="UAH">UAH — гривна</option>
+    <option value="RUB">RUB — рубль</option>
+    <option value="USD">USD — доллар</option>
+    <option value="USDT">USDT</option>
+  </select>
+
+  <label for="amount">Сумма отправления</label>
+  <input
+    id="amount"
+    type="number"
+    min="0.01"
+    step="0.01"
+    placeholder="Например, 100"
+    required
+  >
+
+  <label>Получаете</label>
+  <input type="text" value="USDT" readonly>
+
+  <label for="contact">Контакт для связи</label>
+  <input
+    id="contact"
+    maxlength="200"
+    placeholder="Telegram или другой контакт"
+    autocomplete="off"
+  >
+
+  <p class="muted">
+    Контакт предназначен для администратора. Не указывайте пароли,
+    коды подтверждения или данные банковской карты.
+  </p>
+
+  <button
+    id="createButton"
+    class="full"
+    onclick="createRequest()"
+  >Создать заявку</button>
+
+  <p id="message" class="muted message" role="status"></p>
+</div>
 <label for="from">Отдаёте</label>
 <select id="from">
 <option>EUR</option><option>USD</option><option>USDT</option><option>UAH</option>
