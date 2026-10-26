@@ -543,6 +543,7 @@ async function loadRequests(){
   }
 }
 
+
 function renderRequests(){
   const list=$('requestList');
   if(!requests.length){
@@ -551,11 +552,21 @@ function renderRequests(){
   }
   const labels={new:'Новая',processing:'В обработке',completed:'Завершена',cancelled:'Отменена'};
   list.innerHTML=requests.map(r=>{
-    const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
+    const date=r.created_at
+      ?new Date(r.created_at).toLocaleString('ru-RU',{
+        day:'2-digit',
+        month:'2-digit',
+        year:'numeric',
+        hour:'2-digit',
+        minute:'2-digit',
+        hour12:false
+      })
+      :'—';
     return '<div class="request"><b>PD-'+escapeHTML(r.id)+'</b>'+
       '<p>'+escapeHTML(r.amount)+' '+escapeHTML(r.from_currency)+' → '+escapeHTML(r.to_currency)+'</p>'+
+      '<p class="muted">Создана: '+escapeHTML(date)+'</p>'+
       '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</span>'+
-'<button type="button" class="full" data-chat-request="'+escapeHTML(r.id)+'">Открыть чат</button></div>';
+      '<button type="button" class="full" data-chat-request="'+escapeHTML(r.id)+'">Открыть чат</button></div>';
   }).join('');
 }
 
