@@ -71,6 +71,30 @@ nav button{flex:1;min-width:90px}
 .request{border:1px solid #e1e8f1;border-radius:12px;padding:13px;margin-top:10px;overflow-wrap:anywhere}
 .rate{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0f5}
 footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
+  .bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #dfe6f0;
+  box-shadow: 0 -4px 18px #152c4a12;
+}
+
+.bottom-nav button {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 6px;
+  font-size: 13px;
+}
+
+body {
+  padding-bottom: 76px;
+}
 a{color:#1769e0}
 </style>
 </head>
@@ -106,8 +130,9 @@ a{color:#1769e0}
   <p id="passwordRecoveryMessage" class="muted" role="status"></p>
 </section>
 
-<section id="accountPanel" class="panel hidden">
-<h2>Личный кабинет</h2>
+<button type="button" data-tab="exchange">Обмен</button>
+<button type="button" data-tab="requests">Мои заявки</button>
+<button type="button" id="bottomChatsButton">Чаты</button>
 <p>Email: <strong id="accountEmail"></strong></p>
 <p>Роль: <strong id="accountRole">Клиент</strong></p>
 <button id="logoutButton" class="secondary" type="button">Выйти из аккаунта</button>
@@ -849,7 +874,13 @@ $('sendChatButton').addEventListener('click', sendChatMessage);
 $('chatInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendChatMessage();
 });
-
+document.getElementById('bottomChatsButton').addEventListener('click', () => {
+  showTab('requests');
+  document.getElementById('requestList').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+});
 $('closeChatButton').addEventListener('click', () => {
   if (chatRefreshTimer) clearInterval(chatRefreshTimer);
   chatRefreshTimer = null;
