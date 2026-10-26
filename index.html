@@ -561,6 +561,15 @@ async function loadChatMessages() {
 
     const box = $('chatMessages');
     box.replaceChildren();
+    const senderIds = [...new Set(data.map(item => item.sender_id))];
+const { data: profiles } = await db
+  .from('profiles')
+  .select('id, role')
+  .in('id', senderIds);
+
+const rolesById = Object.fromEntries(
+  (profiles || []).map(p => [p.id, p.role])
+);
 
     if (!data || data.length === 0) {
       box.textContent = 'Сообщений пока нет.';
@@ -572,8 +581,15 @@ async function loadChatMessages() {
       row.className = 'request';
 
       const who = document.createElement('b');
-      who.textContent =
-        item.sender_id === user.id ? 'Ты' : 'Участник заявки';
+const role = rolesById[item.sender_id];
+
+if (item.sender_id === user.id) {
+  who.textContent = role === 'admin' ? 'Администратор (ты)' :
+    role === 'partner' ? 'Партнёр (ты)' : 'Ты';
+} else {
+  who.textContent = role === 'admin' ? '🛡 Администратор' :
+    role === 'partner' ? '🤝 Партнёр' : 'Клиент';
+}
 
       const body = document.createElement('p');
       body.style.whiteSpace = 'pre-wrap';
