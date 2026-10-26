@@ -70,6 +70,7 @@ a{color:#1769e0}
 <button type="button" data-tab="exchange">Обмен</button>
 <button type="button" class="secondary" data-tab="requests">Мои заявки</button>
 <button type="button" class="secondary" data-tab="info">Информация</button>
+<button type="button" class="secondary" data-tab="admin" id="adminTab" hidden>Админ</button>
 </nav>
 
 <section id="exchange">
@@ -137,6 +138,21 @@ a{color:#1769e0}
 <p class="muted">Это тестовый интерфейс. Перед использованием с реальными клиентами необходимо настроить серверные права доступа, роли и защиту персональных данных в Supabase.</p>
 </div>
 </section>
+  <section id="admin" class="hidden">
+  <div class="card">
+    <h2>Панель администратора</h2>
+    <button id="adminRefresh" class="full">Обновить данные</button>
+    <p id="adminMessage" class="muted"></p>
+  </div>
+  <div class="card">
+    <h2>Заявки</h2>
+    <div id="adminRequests"></div>
+  </div>
+  <div class="card">
+    <h2>Пользователи и роли</h2>
+    <div id="adminProfiles"></div>
+  </div>
+</section>
 </main>
 
 <footer>PayDesk © 2026</footer>
@@ -168,16 +184,113 @@ function showTab(tab){
   ['exchange','requests','info'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
   });
+  async function loadAdmin(){
+  if(!db||!user){
+    message('adminMessage','Сначала войди в аккаунт.');
+    return;
+  }
+  message('adminMessage','Загружаем данные…');
+  try{
+    if(await profileRole(user.id)!=='admin')
+      throw new Error('Нет прав администратора.');
+
+    const [rq,pr]=await Promise.all([
+      db.from('exchange_requests')
+        .select('id,customer_id,partner_id,from_country,from_currency,to_currency,amount,contact,status,created_at')
+        .order('created_at',{ascending:false}).limit(100),
+      db.from('profiles').select('id,role').limit(100)
+    ]);
+
+    if(rq.error)throw new Error('Заявки: '+rq.error.message);
+    if(pr.error)throw new Error('Пользователи: '+pr.error.message);
+
+    const labels={new:'Новая',processing:'В обработке',
+      completed:'Завершена',cancelled:'Отменена'};
+
+    $('adminRequests').innerHTML=(rq.data||[]).map(r=>`
+      <div class="request">
+        <b>Заявка #${escapeHTML(r.id)}</b>
+        <p>${escapeHTML(r.amount)} ${escapeHTML(r.from_currency)} → ${escapeHTML(r.to_currency)}</p>
+        <p>Страна: ${escapeHTML(r.from_country||'—')}</p>
+        <p>Контакт: ${escapeHTML(r.contact||'не указан')}</p>
+        <label>Статус</label>
+        <select id="admin-status-${escapeHTML(r.id)}">
+          ${Object.keys(labels).map(s=>
+            `<option value="${s}" ${r.status===s?'selected':''}>${labels[s]}</option>`
+          ).join('')}
+        </select>
+        <button data-admin-status="${escapeHTML(r.id)}">Сохранить статус</button>
+      </div>`).join('')||'<p>Заявок нет.</p>';
+
+    $('adminProfiles').innerHTML=(pr.data||[]).map(p=>`
+      <div class="request">
+        <p class="muted">ID: ${escapeHTML(p.id)}</p>
+        <label>Роль</label>
+        <select id="admin-role-${escapeHTML(p.id)}">
+          ${['customer','partner','admin'].map(s=>
+            `<option value="${s}" ${p.role===s?'selected':''}>${s}</option>`
+          ).join('')}
+        </select>
+        <button data-admin-role="${escapeHTML(p.id)}">Сохранить роль</button>
+      </div>`).join('')||'<p>Пользователей нет.</p>';
+
+    message('adminMessage','Заявок: '+rq.data.length+
+      '; пользователей: '+pr.data.length+'.');
+  }catch(e){
+    message('adminMessage','Ошибка: '+e.message);
+  }
+}
+
+async function adminSaveStatus(id){
+  try{
+    if(!user||await profileRole(user.id)!=='admin')
+      throw new Error('Нет прав администратора.');
+    const status=$('admin-status-'+id).value;
+    const {error}=await db.from('exchange_requests')
+      .update({status}).eq('id',id);
+    if(error)throw error;
+    await loadAdmin();
+  }catch(e){
+    message('adminMessage','Ошибка сохранения статуса: '+e.message);
+  }
+}
+
+async function adminSaveRole(id){
+  try{
+    if(!user||await profileRole(user.id)!=='admin')
+      throw new Error('Нет прав администратора.');
+    if(id===user.id)throw new Error('Свою роль менять нельзя.');
+    const role=$('admin-role-'+id).value;
+    const {error}=await db.from('profiles')
+      .update({role}).eq('id',id);
+    if(error)throw error;
+    await loadAdmin();
+  }catch(e){
+    message('adminMessage','Ошибка сохранения роли: '+e.message);
+  }
+}
+
+$('adminRefresh').addEventListener('click',loadAdmin);
+$('adminRequests').addEventListener('click',e=>{
+  const b=e.target.closest('[data-admin-status]');
+  if(b)adminSaveStatus(b.dataset.adminStatus);
+});
+$('adminProfiles').addEventListener('click',e=>{
+  const b=e.target.closest('[data-admin-role]');
+  if(b)adminSaveRole(b.dataset.adminRole);
+});
   document.querySelectorAll('[data-tab]').forEach(btn=>{
     btn.classList.toggle('secondary',btn.dataset.tab!==tab);
   });
   if(tab==='requests') loadRequests();
+  if(tab==='admin') loadAdmin();
 }
 
 function loggedIn(account,role){
   user=account;
   $('accountEmail').textContent=account.email||'';
   $('accountRole').textContent=role||'customer';
+  $('adminTab').hidden=(role!=='admin');
   $('authPanel').classList.add('hidden');
   $('accountPanel').classList.remove('hidden');
 }
