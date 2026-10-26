@@ -353,6 +353,7 @@ $('adminProfiles').addEventListener('click',e=>{
   if(b) adminSaveRole(b.dataset.adminRole);
 });
 
+
 function loggedIn(account,role){
   user=account;
   $('accountEmail').textContent=account.email||'';
@@ -360,15 +361,20 @@ function loggedIn(account,role){
   $('adminTab').hidden=(role!=='admin');
   $('authPanel').classList.add('hidden');
   $('accountPanel').classList.remove('hidden');
+  $('chatFab').hidden=false;
 }
+
 
 function loggedOut(){
   user=null;
   requests=[];
   $('authPanel').classList.remove('hidden');
   $('accountPanel').classList.add('hidden');
+  $('chatFab').hidden=true;
+  $('chatUnreadBadge').hidden=true;
   renderRequests();
 }
+
 
 async function profileRole(id){
   const {data,error}=await db.from('profiles')
@@ -662,6 +668,11 @@ $('closeChatButton').addEventListener('click', () => {
   activeChatRequestId = null;
   $('chatPanel').classList.remove('chat-open');
   $('chatPanel').classList.add('hidden');
+});
+
+$('chatFab').addEventListener('click', () => {
+  showTab('requests');
+  $('requestList').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
 $('requestList').addEventListener('click', e => {
