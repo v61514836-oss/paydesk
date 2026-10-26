@@ -181,7 +181,7 @@ function escapeHTML(value){
 }
 
 function showTab(tab){
-  ['exchange','requests','info'].forEach(id=>{
+  ['exchange','requests','info','admin'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
   });
   async function loadAdmin(){
