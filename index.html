@@ -129,6 +129,22 @@ a{color:#1769e0}
 <div id="requestList"><p class="muted">Войди в аккаунт, чтобы увидеть свои заявки.</p></div>
 <button id="refreshButton" class="secondary full" type="button">Обновить список</button>
 </div>
+<div id="chatPanel" class="card hidden">
+  <h2 id="chatTitle">Чат по заявке</h2>
+  <div id="chatMessages">
+    <p class="muted">Сообщений пока нет.</p>
+  </div>
+  <label for="chatInput">Сообщение</label>
+  <input id="chatInput" maxlength="4000"
+         placeholder="Напиши сообщение" autocomplete="off">
+  <button id="sendChatButton" class="full" type="button">
+    Отправить
+  </button>
+  <button id="closeChatButton" class="secondary full" type="button">
+    Закрыть чат
+  </button>
+  <p id="chatStatus" class="muted" role="status"></p>
+</div>
 </section>
 
 <section id="info" class="hidden">
@@ -168,7 +184,7 @@ const $=id=>document.getElementById(id);
 let db=null;
 let user=null;
 let requests=[];
-
+let activeChatRequestId = null;
 function message(id,text){
   const el=$(id);
   if(el) el.textContent=text;
@@ -462,10 +478,123 @@ function renderRequests(){
     const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
     return '<div class="request"><b>PD-'+escapeHTML(r.id)+'</b>'+
       '<p>'+escapeHTML(r.amount)+' '+escapeHTML(r.from_currency)+' → '+escapeHTML(r.to_currency)+'</p>'+
-      '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</span>'+
-      '<p class="muted">'+escapeHTML(date)+'</p></div>';
+      '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</'<p class="muted">'+escapeHTML(date)+'</p>'+
+'<button type="button" class="full" data-chat-request="'+escapeHTML(r.id)+'">Открыть чат</button></div>';
   }).join('');
 }
+
+async function openRequestChat(requestId) {
+  if (!db || !user) {
+    message('chatStatus', 'Сначала войди в аккаунт.');
+    return;
+  }
+
+  activeChatRequestId = String(requestId);
+  $('chatPanel').classList.remove('hidden');
+  $('chatTitle').textContent = 'Чат по заявке PD-' + requestId;
+  await loadChatMessages();
+}
+
+async function loadChatMessages() {
+  if (!activeChatRequestId || !user) return;
+
+  try {
+    const { data, error } = await db
+      .from('chat_messages')
+      .select('id, sender_id, message, created_at')
+      .eq('request_id', activeChatRequestId)
+      .order('created_at', { ascending: true })
+      .limit(200);
+
+    if (error) throw error;
+
+    const box = $('chatMessages');
+    box.replaceChildren();
+
+    if (!data || data.length === 0) {
+      box.textContent = 'Сообщений пока нет.';
+      return;
+    }
+
+    data.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'request';
+
+      const who = document.createElement('b');
+      who.textContent =
+        item.sender_id === user.id ? 'Ты' : 'Участник заявки';
+
+      const body = document.createElement('p');
+      body.style.whiteSpace = 'pre-wrap';
+      body.textContent = item.message;
+
+      const date = document.createElement('p');
+      date.className = 'muted';
+      date.textContent =
+        new Date(item.created_at).toLocaleString('ru-RU');
+
+      row.append(who, body, date);
+      box.appendChild(row);
+    });
+
+    message('chatStatus', '');
+  } catch (e) {
+    $('chatMessages').textContent = 'Не удалось загрузить сообщения.';
+    message('chatStatus', e.message || 'Ошибка чата.');
+  }
+}
+
+async function sendChatMessage() {
+  if (!db || !user || !activeChatRequestId) {
+    message('chatStatus', 'Сначала открой чат заявки.');
+    return;
+  }
+
+  const input = $('chatInput');
+  const text = input.value.trim();
+
+  if (!text) {
+    message('chatStatus', 'Напиши сообщение.');
+    return;
+  }
+
+  const btn = $('sendChatButton');
+  btn.disabled = true;
+
+  try {
+    const { error } = await db.from('chat_messages').insert({
+      request_id: activeChatRequestId,
+      sender_id: user.id,
+      message: text
+    });
+
+    if (error) throw error;
+
+    input.value = '';
+    await loadChatMessages();
+    message('chatStatus', 'Сообщение отправлено.');
+  } catch (e) {
+    message('chatStatus', 'Ошибка отправки: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$('sendChatButton').addEventListener('click', sendChatMessage);
+
+$('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChatMessage();
+});
+
+$('closeChatButton').addEventListener('click', () => {
+  activeChatRequestId = null;
+  $('chatPanel').classList.add('hidden');
+});
+
+$('requestList').addEventListener('click', e => {
+  const button = e.target.closest('[data-chat-request]');
+  if (button) openRequestChat(button.dataset.chatRequest);
+});
 
 document.querySelectorAll('[data-tab]').forEach(btn=>{
   btn.addEventListener('click',()=>showTab(btn.dataset.tab));
