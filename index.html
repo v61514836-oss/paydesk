@@ -296,6 +296,7 @@ async function loadAdmin(){
           ).join('')}
         </select>
         <button data-admin-status="${escapeHTML(r.id)}">Сохранить статус</button>
+        <button type="button" data-chat-request="${escapeHTML(r.id)}">Открыть чат</button>
       </div>`).join('')||'<p>Заявок нет.</p>';
 
     $('adminProfiles').innerHTML=(pr.data||[]).map(p=>`
@@ -347,9 +348,17 @@ async function adminSaveRole(id){
 }
 
 $('adminRefresh').addEventListener('click',loadAdmin);
-$('adminRequests').addEventListener('click',e=>{
-  const b=e.target.closest('[data-admin-status]');
-  if(b) adminSaveStatus(b.dataset.adminStatus);
+$('adminRequests').addEventListener('click', e => {
+  const chatButton = e.target.closest('[data-chat-request]');
+  if (chatButton) {
+    openRequestChat(chatButton.dataset.chatRequest);
+    return;
+  }
+
+  const statusButton = e.target.closest('[data-admin-status]');
+  if (statusButton) {
+    adminSaveStatus(statusButton.dataset.adminStatus);
+  }
 });
 $('adminProfiles').addEventListener('click',e=>{
   const b=e.target.closest('[data-admin-role]');
