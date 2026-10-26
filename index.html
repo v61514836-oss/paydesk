@@ -235,6 +235,9 @@ let user=null;
 let requests=[];
 let activeChatRequestId = null;
   let chatRefreshTimer = null;
+  
+let unreadRefreshTimer = null;
+
 function message(id,text){
   const el=$(id);
   if(el) el.textContent=text;
@@ -362,11 +365,18 @@ function loggedIn(account,role){
   $('authPanel').classList.add('hidden');
   $('accountPanel').classList.remove('hidden');
   $('chatFab').hidden=false;
+  
+if (unreadRefreshTimer) clearInterval(unreadRefreshTimer);
+updateUnreadCount();
+unreadRefreshTimer = setInterval(updateUnreadCount, 10000);
+
 }
 
 
 function loggedOut(){
   user=null;
+  if (unreadRefreshTimer) clearInterval(unreadRefreshTimer);
+unreadRefreshTimer = null;
   requests=[];
   $('authPanel').classList.remove('hidden');
   $('accountPanel').classList.add('hidden');
@@ -613,6 +623,12 @@ async function loadChatMessages() {
       .limit(200);
 
     
+if (error) throw error;
+
+markChatRead(activeChatRequestId, data || []);
+await updateUnreadCount();
+
+
 if (error) throw error;
 
 markChatRead(activeChatRequestId, data || []);
