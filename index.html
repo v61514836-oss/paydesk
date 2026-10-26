@@ -777,13 +777,14 @@ const rolesById = Object.fromEntries(
       const who = document.createElement('b');
 const role = rolesById[item.sender_id];
 
+
 if (item.sender_id === user.id) {
-  who.textContent = role === 'admin' ? 'Администратор (ты)' :
-    role === 'partner' ? 'Партнёр (ты)' : 'Ты';
+  who.textContent = 'Ты';
 } else {
-  who.textContent = role === 'admin' ? '🛡 Администратор' :
-    role === 'partner' ? '🤝 Партнёр' : 'Клиент';
+  who.textContent = role === 'admin' ? '🛡️ PayDesk Команда' :
+    role === 'partner' ? '🤝 PayDesk Партнёр' : 'PayDesk Клиент';
 }
+
 
       const body = document.createElement('p');
       body.style.whiteSpace = 'pre-wrap';
