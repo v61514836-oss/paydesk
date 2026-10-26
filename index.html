@@ -1,141 +1,118 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PayDesk — обмен валют</title>
-
-
-  <style>
+<style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17243a}
-header{background:#102b55;color:white;padding:22px 18px}
+header{background:#102b55;color:#fff;padding:22px 18px}
 header h1{margin:0;font-size:28px}
-header p{color:#c8d9f3;margin:7px 0 0}
-main{max-width:760px;margin:auto;padding:18px}
-.card,.panel{background:white;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px #152c4a0d}
-h2{font-size:19px;margin:0 0 14px}
-label{display:block;font-size:14px;margin:12px 0 6px;color:#516078}
-input,select{width:100%;padding:13px;border:1px solid #d5deea;border-radius:10px;font-size:16px;background:white}
+header p{color:#c8d9f3}
+main{max-width:760px;margin:auto;padding:16px}
+.card,.panel{background:#fff;border-radius:16px;padding:18px;margin:14px auto;box-shadow:0 4px 18px #152c4a0d}
+.panel{max-width:760px}
+h2{font-size:19px;margin-top:0}
+label{display:block;margin:12px 0 6px;color:#516078;font-size:14px}
+input,select{width:100%;padding:13px;border:1px solid #d5deea;border-radius:10px;font-size:16px;background:#fff}
 button{border:0;border-radius:10px;background:#1769e0;color:white;padding:13px 16px;font-size:15px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.6}
-button.secondary{background:#e8f0fd;color:#1455a8}
+button:disabled{opacity:.55}
+.secondary{background:#e8f0fd;color:#1455a8}
 .full{width:100%;margin-top:14px}
-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 nav button{flex:1;min-width:90px}
 .hidden{display:none!important}
-.muted{font-size:13px;color:#748197}
+.muted{font-size:13px;color:#748197;overflow-wrap:anywhere}
 .status{display:inline-block;background:#fff1ce;color:#875c00;padding:5px 9px;border-radius:20px;font-size:12px}
 .request{border:1px solid #e1e8f1;border-radius:12px;padding:13px;margin-top:10px;overflow-wrap:anywhere}
 .rate{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #edf0f5}
 footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
-.message{overflow-wrap:anywhere}
+a{color:#1769e0}
 </style>
 </head>
 <body>
 <header>
 <h1>PayDesk</h1>
-<p>Платформа обмена валют · DEMO</p>
+<p>Платформа обмена валют</p>
 </header>
 
-<section id="authPanel" class="panel" style="max-width:760px;margin:18px auto;padding:18px">
+<section id="authPanel" class="panel">
 <h2>Вход в PayDesk</h2>
-<p>Войди в аккаунт, чтобы работать со своими заявками.</p>
+<p>Войди или создай аккаунт, чтобы работать со своими заявками.</p>
 <label for="authEmail">Email</label>
 <input id="authEmail" type="email" autocomplete="email" placeholder="Твой email">
 <label for="authPassword">Пароль</label>
 <input id="authPassword" type="password" autocomplete="current-password" placeholder="Пароль">
-<button id="loginButton" onclick="loginUser()" style="width:100%;margin-top:12px">Войти</button>
-<button class="secondary" onclick="registerUser()" style="width:100%;margin-top:8px">Регистрация</button>
-<p id="authMessage" class="muted message" role="status"></p>
+<button id="loginButton" class="full" type="button">Войти</button>
+<button id="registerButton" class="secondary full" type="button">Регистрация</button>
+<p id="authMessage" class="muted" role="status"></p>
 </section>
 
-<section id="accountPanel" class="panel hidden" style="max-width:760px;margin:18px auto;padding:18px">
+<section id="accountPanel" class="panel hidden">
 <h2>Личный кабинет</h2>
-<p>Статус: <strong>Вы вошли</strong></p>
-<p>Email: <span id="accountEmail"></span></p>
-<p>Роль: <span id="accountRole">Клиент</span></p>
-<button class="secondary" onclick="logoutUser()">Выйти из аккаунта</button>
-<p id="accountMessage" class="muted message" role="status"></p>
+<p>Email: <strong id="accountEmail"></strong></p>
+<p>Роль: <strong id="accountRole">Клиент</strong></p>
+<button id="logoutButton" class="secondary" type="button">Выйти из аккаунта</button>
+<p id="accountMessage" class="muted" role="status"></p>
 </section>
 
 <main>
 <div class="card">
 <h2>Добро пожаловать</h2>
-<p>Создавайте заявки и отслеживайте их статус.</p>
-<span class="status">Демо-режим</span>
-<p class="muted">Курсы примерные. Реальные денежные переводы не выполняются.</p>
+<p>Создавай заявки и следи за их статусом.</p>
+<span class="status">Тестовая версия</span>
+<p class="muted">Курсы ниже демонстрационные. Реальные денежные переводы не выполняются.</p>
 </div>
 
-<nav>
-<button onclick="showTab('exchange')">Обмен</button>
-<button class="secondary" onclick="showTab('requests')">Мои заявки</button>
-<button class="secondary" onclick="showTab('admin')">Информация</button>
+<nav aria-label="Разделы">
+<button type="button" data-tab="exchange">Обмен</button>
+<button type="button" class="secondary" data-tab="requests">Мои заявки</button>
+<button type="button" class="secondary" data-tab="info">Информация</button>
 </nav>
 
 <section id="exchange">
 <div class="card">
-  <h2>Создать заявку</h2>
+<h2>Создать заявку</h2>
+<label for="fromCountry">Страна отправления</label>
+<select id="fromCountry">
+<option value="Germany">Германия</option>
+<option value="Poland">Польша</option>
+<option value="Czechia">Чехия</option>
+<option value="Romania">Румыния</option>
+<option value="Netherlands">Нидерланды</option>
+<option value="France">Франция</option>
+<option value="Italy">Италия</option>
+<option value="Spain">Испания</option>
+<option value="Ukraine">Украина</option>
+<option value="Other">Другая страна</option>
+</select>
 
-  <label for="fromCountry">Страна отправления</label>
-  <select id="fromCountry" required>
-    <option value="Germany">Германия</option>
-    <option value="Poland">Польша</option>
-    <option value="Czechia">Чехия</option>
-    <option value="Romania">Румыния</option>
-    <option value="Netherlands">Нидерланды</option>
-    <option value="France">Франция</option>
-    <option value="Italy">Италия</option>
-    <option value="Spain">Испания</option>
-    <option value="Ukraine">Украина</option>
-    <option value="Other">Другая страна</option>
-  </select>
+<label for="from">Отдаёшь</label>
+<select id="from">
+<option value="EUR">EUR — евро</option>
+<option value="UAH">UAH — гривна</option>
+<option value="RUB">RUB — рубль</option>
+<option value="USD">USD — доллар</option>
+<option value="USDT">USDT</option>
+</select>
 
-  <label for="from">Отдаёте</label>
-  <select id="from" required>
-    <option value="EUR">EUR — евро</option>
-    <option value="UAH">UAH — гривна</option>
-    <option value="RUB">RUB — рубль</option>
-    <option value="USD">USD — доллар</option>
-    <option value="USDT">USDT</option>
-  </select>
+<label for="amount">Сумма отправления</label>
+<input id="amount" type="number" min="0.01" step="0.01" placeholder="Например, 100">
 
-  <label for="amount">Сумма отправления</label>
-  <input
-    id="amount"
-    type="number"
-    min="0.01"
-    step="0.01"
-    placeholder="Например, 100"
-    required
-  >
+<label for="toCurrency">Получаешь</label>
+<input id="toCurrency" value="USDT" readonly>
 
-  <label>Получаете</label>
-  <input type="text" value="USDT" readonly>
+<label for="contact">Контакт для связи</label>
+<input id="contact" maxlength="200" placeholder="Telegram или другой контакт" autocomplete="off">
+<p class="muted">Не указывай пароли, коды подтверждения или данные банковской карты.</p>
 
-  <label for="contact">Контакт для связи</label>
-  <input
-    id="contact"
-    maxlength="200"
-    placeholder="Telegram или другой контакт"
-    autocomplete="off"
-  >
-
-  <p class="muted">
-    Контакт предназначен для администратора. Не указывайте пароли,
-    коды подтверждения или данные банковской карты.
-  </p>
-
-  <button
-    id="createButton"
-    class="full"
-    onclick="createRequest()"
-  >Создать заявку</button>
-
-  <p id="message" class="muted message" role="status"></p>
+<button id="createButton" class="full" type="button">Создать заявку</button>
+<p id="createMessage" class="muted" role="status"></p>
 </div>
 
+<div class="card">
 <h2>Демонстрационные курсы</h2>
 <div class="rate"><span>EUR → USD</span><b>1.08</b></div>
 <div class="rate"><span>USD → EUR</span><b>0.92</b></div>
@@ -147,358 +124,253 @@ footer{text-align:center;color:#7c8798;font-size:12px;padding:20px}
 <section id="requests" class="hidden">
 <div class="card">
 <h2>Мои заявки</h2>
-<p id="requestMessage" class="muted message"></p>
-<div id="requestList"><p class="muted">Загрузка заявок…</p></div>
-<button class="secondary" onclick="loadRequests()">Обновить список</button>
+<p id="requestMessage" class="muted" role="status"></p>
+<div id="requestList"><p class="muted">Войди в аккаунт, чтобы увидеть свои заявки.</p></div>
+<button id="refreshButton" class="secondary full" type="button">Обновить список</button>
 </div>
 </section>
 
-<section id="admin" class="hidden">
+<section id="info" class="hidden">
 <div class="card">
 <h2>Информация</h2>
-<p>Контакт администратора: <a href="https://t.me/kingert71">@kingert71</a></p>
-<p class="muted">Это демонстрационная версия. Панель администратора, роли партнёров и реальные обменные операции пока не реализованы.</p>
+<p>Связь с администратором: <a href="https://t.me/kingert71" target="_blank" rel="noopener noreferrer">@kingert71</a></p>
+<p class="muted">Это тестовый интерфейс. Перед использованием с реальными клиентами необходимо настроить серверные права доступа, роли и защиту персональных данных в Supabase.</p>
 </div>
 </section>
 </main>
 
-<footer>PayDesk © 2026 · Учебный прототип</footer>
+<footer>PayDesk © 2026</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://xnaiqqlfewgpkylzcneg.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_K319xCjRcAFFlP2nZU2XLQ_lhu8tcyo';
+(function(){
+'use strict';
 
-let supabaseClient = null;
-let currentUser = null;
-let requests = [];
+const URL='https://xnaiqqlfewgpkylzcneg.supabase.co';
+const KEY='sb_publishable_K319xCjRcAFFlP2nZU2XLQ_lhu8tcyo';
+const $=id=>document.getElementById(id);
+let db=null;
+let user=null;
+let requests=[];
 
-try {
-  if (window.supabase && window.supabase.createClient) {
-    supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY,
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
-        }
-      }
-    );
-  }
-} catch (error) {
-  console.error('Supabase init:', error);
+function message(id,text){
+  const el=$(id);
+  if(el) el.textContent=text;
 }
 
-function showTab(tab) {
-  ['exchange','requests','admin'].forEach(id => {
-    document.getElementById(id).classList.toggle('hidden', id !== tab);
-  });
-  if (tab === 'requests' && currentUser) loadRequests();
-}
-
-function escapeText(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+function escapeHTML(value){
+  return String(value??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   })[c]);
 }
 
-function showAuthMessage(text) {
-  document.getElementById('authMessage').textContent = text;
+function showTab(tab){
+  ['exchange','requests','info'].forEach(id=>{
+    $(id).classList.toggle('hidden',id!==tab);
+  });
+  document.querySelectorAll('[data-tab]').forEach(btn=>{
+    btn.classList.toggle('secondary',btn.dataset.tab!==tab);
+  });
+  if(tab==='requests') loadRequests();
 }
 
-function setLoggedIn(user, role) {
-  currentUser = user;
-  document.getElementById('accountEmail').textContent = user.email || '';
-  document.getElementById('accountRole').textContent = role || 'customer';
-  document.getElementById('authPanel').classList.add('hidden');
-  document.getElementById('accountPanel').classList.remove('hidden');
+function loggedIn(account,role){
+  user=account;
+  $('accountEmail').textContent=account.email||'';
+  $('accountRole').textContent=role||'customer';
+  $('authPanel').classList.add('hidden');
+  $('accountPanel').classList.remove('hidden');
 }
 
-function setLoggedOut() {
-  currentUser = null;
-  document.getElementById('authPanel').classList.remove('hidden');
-  document.getElementById('accountPanel').classList.add('hidden');
-  requests = [];
+function loggedOut(){
+  user=null;
+  requests=[];
+  $('authPanel').classList.remove('hidden');
+  $('accountPanel').classList.add('hidden');
   renderRequests();
 }
 
-async function getProfileRole(userId) {
-  try {
-    const { data, error } = await supabaseClient
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (error) {
-      console.warn('Profile role:', error.message);
-      return 'customer';
-    }
-    return data?.role || 'customer';
-  } catch (error) {
+async function profileRole(id){
+  const {data,error}=await db.from('profiles')
+    .select('role').eq('id',id).maybeSingle();
+  if(error){
+    console.warn('Profile role:',error.message);
     return 'customer';
   }
+  return data?.role||'customer';
 }
 
-async function loginUser() {
-  if (!supabaseClient) {
-    showAuthMessage('Не загрузилось подключение к базе. Обнови страницу.');
-    return;
-  }
+async function login(){
+  if(!db){message('authMessage','Не загрузилась библиотека Supabase. Обнови страницу.');return;}
+  const email=$('authEmail').value.trim();
+  const password=$('authPassword').value;
+  if(!email||!password){message('authMessage','Введи email и пароль.');return;}
 
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const button = document.getElementById('loginButton');
-
-  if (!email || !password) {
-    showAuthMessage('Введи email и пароль.');
-    return;
-  }
-
-  button.disabled = true;
-  showAuthMessage('Выполняется вход…');
-
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email, password
-    });
-    if (error) throw error;
-
-    const role = await getProfileRole(data.user.id);
-    setLoggedIn(data.user, role);
-    document.getElementById('accountMessage').textContent = 'Вход выполнен.';
+  const btn=$('loginButton');
+  btn.disabled=true;
+  message('authMessage','Выполняется вход…');
+  try{
+    const {data,error}=await db.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    loggedIn(data.user,await profileRole(data.user.id));
+    message('accountMessage','Вход выполнен.');
+    message('authMessage','');
     await loadRequests();
-  } catch (error) {
-    console.error('Login:', error);
-    showAuthMessage('Ошибка входа: ' + (error.message || 'попробуй ещё раз'));
-  } finally {
-    button.disabled = false;
+  }catch(e){
+    message('authMessage','Ошибка входа: '+(e.message||'неизвестная ошибка'));
+  }finally{
+    btn.disabled=false;
   }
 }
 
-async function registerUser() {
-  if (!supabaseClient) {
-    showAuthMessage('Не загрузилось подключение к базе. Обнови страницу.');
-    return;
-  }
+async function register(){
+  if(!db){message('authMessage','Не загрузилась библиотека Supabase. Обнови страницу.');return;}
+  const email=$('authEmail').value.trim();
+  const password=$('authPassword').value;
+  if(!email||!password){message('authMessage','Введи email и пароль.');return;}
+  if(password.length<8){message('authMessage','Пароль должен быть не короче 8 символов.');return;}
 
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-
-  if (!email || !password) {
-    showAuthMessage('Введи email и пароль.');
-    return;
-  }
-  if (password.length < 8) {
-    showAuthMessage('Пароль должен содержать минимум 8 символов.');
-    return;
-  }
-
-  showAuthMessage('Создаём аккаунт…');
-
-  try {
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) throw error;
-
-    if (data.session && data.user) {
-      setLoggedIn(data.user, 'customer');
-      await loadRequests();
-      showAuthMessage('');
-      document.getElementById('accountMessage').textContent = 'Аккаунт создан.';
-    } else {
-      showAuthMessage('Аккаунт создан. Проверь почту и подтверди email, если потребуется.');
+  const btn=$('registerButton');
+  btn.disabled=true;
+  message('authMessage','Создаём аккаунт…');
+  try{
+    const {data,error}=await db.auth.signUp({email,password});
+    if(error) throw error;
+    if(data.session&&data.user){
+      loggedIn(data.user,'customer');
+      message('accountMessage','Аккаунт создан.');
+      message('authMessage','');
+    }else{
+      message('authMessage','Аккаунт создан. Проверь почту и подтверди email, если это потребуется.');
     }
-  } catch (error) {
-    console.error('Register:', error);
-    showAuthMessage('Ошибка регистрации: ' + (error.message || 'попробуй ещё раз'));
+  }catch(e){
+    message('authMessage','Ошибка регистрации: '+(e.message||'неизвестная ошибка'));
+  }finally{
+    btn.disabled=false;
   }
 }
 
-async function logoutUser() {
-  if (!supabaseClient) return;
-  const { error } = await supabaseClient.auth.signOut();
-  if (error) {
-    document.getElementById('accountMessage').textContent = 'Не удалось выйти: ' + error.message;
-    return;
-  }
-  setLoggedOut();
-  showAuthMessage('Ты вышел из аккаунта.');
+async function logout(){
+  if(!db)return;
+  const {error}=await db.auth.signOut();
+  if(error){message('accountMessage','Ошибка выхода: '+error.message);return;}
+  loggedOut();
+  message('authMessage','Ты вышел из аккаунта.');
 }
 
-async function restoreSession() {
-  if (!supabaseClient) {
-    showAuthMessage('Не удалось подключиться к базе. Обнови страницу.');
-    return;
-  }
-
-  try {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (error) throw error;
-
-    const user = data?.session?.user;
-    if (!user) {
-      setLoggedOut();
-      document.getElementById('requestList').innerHTML =
-        '<p class="muted">Войди в аккаунт, чтобы увидеть свои заявки.</p>';
+async function restore(){
+  if(!db){message('authMessage','Supabase не загрузился. Проверь интернет и обнови страницу.');return;}
+  try{
+    const {data,error}=await db.auth.getSession();
+    if(error)throw error;
+    const account=data?.session?.user;
+    if(!account){
+      loggedOut();
+      message('requestMessage','Войди в аккаунт, чтобы увидеть заявки.');
       return;
     }
-
-    const role = await getProfileRole(user.id);
-    setLoggedIn(user, role);
-    document.getElementById('accountMessage').textContent = 'Сессия восстановлена.';
+    loggedIn(account,await profileRole(account.id));
+    message('accountMessage','Сессия восстановлена.');
     await loadRequests();
-  } catch (error) {
-    console.error('Restore session:', error);
-    showAuthMessage('Не удалось восстановить вход: ' + (error.message || 'ошибка'));
+  }catch(e){
+    message('authMessage','Ошибка подключения: '+(e.message||'неизвестная ошибка'));
   }
 }
 
-async function createRequest() {
-  if (!supabaseClient) {
-    document.getElementById('message').textContent = 'Нет подключения к базе данных.';
-    return;
-  }
+async function createRequest(){
+  if(!db){message('createMessage','Нет подключения к Supabase.');return;}
+  const amount=Number($('amount').value);
+  const from=$('from').value;
+  const country=$('fromCountry').value;
+  const contact=$('contact').value.trim();
+  if(!user){message('createMessage','Сначала войди в аккаунт.');showTab('exchange');return;}
+  if(!Number.isFinite(amount)||amount<=0){message('createMessage','Введи сумму больше нуля.');return;}
+  if(from==='USDT'){message('createMessage','Выбери валюту отправления, отличную от USDT.');return;}
 
-  const amount = Number(document.getElementById('amount').value);
-  const from = document.getElementById('from').value;
-const fromCountry = document.getElementById('fromCountry').value;
-const to = 'USDT';
-  const contact = document.getElementById('contact').value.trim();
-  const msg = document.getElementById('message');
-  const button = document.getElementById('createButton');
-
-  if (!Number.isFinite(amount) || amount <= 0) {
-    msg.textContent = 'Введи сумму больше нуля.';
-    return;
-  }
-  if (from === to) {
-    msg.textContent = 'Выбери разные валюты.';
-    return;
-  }
-
-  try {
-    const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
-
-    if (sessionError) throw sessionError;
-
-    const user = sessionData?.session?.user;
-    if (!user) {
-      msg.textContent = 'Сначала войди в аккаунт.';
-      setLoggedOut();
-      return;
-    }
-
-    button.disabled = true;
-    button.textContent = 'Сохраняем…';
-    msg.textContent = 'Сохраняем заявку в базе…';
-
-    const { data, error } = await supabaseClient
-      .from('exchange_requests')
-      .insert({
-        customer_id: user.id,
-       from_country: fromCountry,
-        partner_id: null,
-        from_currency: from,
-        to_currency: to,
-        amount: amount,
-        contact: contact || null,
-        status: 'new'
-      })
-      .select('id, customer_id, from_currency, to_currency, amount, contact, status, created_at')
-      .single();
-
-    if (error) throw error;
-
-    document.getElementById('amount').value = '';
-    msg.textContent = 'Заявка сохранена в базе: PD-' + data.id;
+  const btn=$('createButton');
+  btn.disabled=true;
+  message('createMessage','Сохраняем заявку…');
+  try{
+    const {data,error}=await db.from('exchange_requests').insert({
+      customer_id:user.id,
+      from_country:country,
+      partner_id:null,
+      from_currency:from,
+      to_currency:'USDT',
+      amount,
+      contact:contact||null,
+      status:'new'
+    }).select('id').single();
+    if(error)throw error;
+    $('amount').value='';
+    $('contact').value='';
+    message('createMessage','Заявка создана: PD-'+data.id);
     await loadRequests();
     showTab('requests');
-  } catch (error) {
-    console.error('Create request:', error);
-    msg.textContent = 'Ошибка сохранения: ' + (error.message || 'проверь подключение и права базы');
-  } finally {
-    button.disabled = false;
-    button.textContent = 'Создать заявку';
+  }catch(e){
+    message('createMessage','Не удалось сохранить: '+(e.message||'ошибка базы'));
+  }finally{
+    btn.disabled=false;
   }
 }
 
-async function loadRequests() {
-  const list = document.getElementById('requestList');
-  const status = document.getElementById('requestMessage');
-
-  if (!supabaseClient) {
-    status.textContent = 'Нет подключения к базе данных.';
-    return;
-  }
-
-  try {
-    const { data: sessionData, error: sessionError } =
-      await supabaseClient.auth.getSession();
-
-    if (sessionError) throw sessionError;
-
-    const user = sessionData?.session?.user;
-    if (!user) {
-      requests = [];
-      renderRequests();
-      status.textContent = 'Войди в аккаунт, чтобы видеть заявки.';
-      return;
-    }
-
-    const { data, error } = await supabaseClient
-      .from('exchange_requests')
-      .select('id, customer_id, from_currency, to_currency, amount, contact, status, created_at')
-      .eq('customer_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    requests = data || [];
-    status.textContent = requests.length
-      ? 'Заявок в базе: ' + requests.length
-      : 'Сохранённых заявок пока нет.';
+async function loadRequests(){
+  if(!db){message('requestMessage','Нет подключения к базе.');return;}
+  if(!user){
+    requests=[];
     renderRequests();
-  } catch (error) {
-    console.error('Load requests:', error);
-    status.textContent = 'Не удалось загрузить заявки: ' + (error.message || 'ошибка базы');
-  }
-}
-
-function renderRequests() {
-  const list = document.getElementById('requestList');
-
-  if (!requests.length) {
-    list.innerHTML = '<p class="muted">Заявок пока нет.</p>';
+    message('requestMessage','Войди в аккаунт, чтобы увидеть заявки.');
     return;
   }
-
-  const statusLabels = {
-    new: 'Новая',
-    processing: 'В обработке',
-    completed: 'Завершена',
-    cancelled: 'Отменена'
-  };
-
-  list.innerHTML = requests.map(r => {
-    const date = r.created_at
-      ? new Date(r.created_at).toLocaleString('ru-RU')
-      : '';
-    return '<div class="request">' +
-      '<b>PD-' + escapeText(r.id) + '</b>' +
-      '<p>' + escapeText(r.amount) + ' ' + escapeText(r.from_currency) +
-      ' → ' + escapeText(r.to_currency) + '</p>' +
-      '<span class="status">' + escapeText(statusLabels[r.status] || r.status) + '</span>' +
-            '<p class="muted">' + escapeText(date) + '</p>' +
-      '</div>';
-  }).join('');
-    
-  
+  message('requestMessage','Загружаем заявки…');
+  try{
+    const {data,error}=await db.from('exchange_requests')
+      .select('id,from_currency,to_currency,amount,status,created_at')
+      .eq('customer_id',user.id)
+      .order('created_at',{ascending:false});
+    if(error)throw error;
+    requests=data||[];
+    message('requestMessage',requests.length?'Заявок: '+requests.length:'Заявок пока нет.');
+    renderRequests();
+  }catch(e){
+    message('requestMessage','Ошибка загрузки: '+(e.message||'ошибка базы'));
+  }
 }
 
-document.addEventListener('DOMContentLoaded', restoreSession);
+function renderRequests(){
+  const list=$('requestList');
+  if(!requests.length){
+    list.innerHTML='<p class="muted">Заявок пока нет.</p>';
+    return;
+  }
+  const labels={new:'Новая',processing:'В обработке',completed:'Завершена',cancelled:'Отменена'};
+  list.innerHTML=requests.map(r=>{
+    const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
+    return '<div class="request"><b>PD-'+escapeHTML(r.id)+'</b>'+
+      '<p>'+escapeHTML(r.amount)+' '+escapeHTML(r.from_currency)+' → '+escapeHTML(r.to_currency)+'</p>'+
+      '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</span>'+
+      '<p class="muted">'+escapeHTML(date)+'</p></div>';
+  }).join('');
+}
+
+document.querySelectorAll('[data-tab]').forEach(btn=>{
+  btn.addEventListener('click',()=>showTab(btn.dataset.tab));
+});
+$('loginButton').addEventListener('click',login);
+$('registerButton').addEventListener('click',register);
+$('logoutButton').addEventListener('click',logout);
+$('createButton').addEventListener('click',createRequest);
+$('refreshButton').addEventListener('click',loadRequests);
+
+try{
+  if(window.supabase&&window.supabase.createClient){
+    db=window.supabase.createClient(URL,KEY);
+  }
+}catch(e){
+  console.error('Supabase initialization:',e);
+}
+restore();
+})();
 </script>
 </body>
 </html>
