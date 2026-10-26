@@ -478,7 +478,7 @@ function renderRequests(){
     const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
     return '<div class="request"><b>PD-'+escapeHTML(r.id)+'</b>'+
       '<p>'+escapeHTML(r.amount)+' '+escapeHTML(r.from_currency)+' → '+escapeHTML(r.to_currency)+'</p>'+
-      '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</'<p class="muted">'+escapeHTML(date)+'</p>'+
+      '<span class="status">'+escapeHTML(labels[r.status]||r.status||'Неизвестно')+'</span>'+
 '<button type="button" class="full" data-chat-request="'+escapeHTML(r.id)+'">Открыть чат</button></div>';
   }).join('');
 }
