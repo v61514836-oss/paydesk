@@ -185,6 +185,7 @@ let db=null;
 let user=null;
 let requests=[];
 let activeChatRequestId = null;
+  let chatRefreshTimer = null;
 function message(id,text){
   const el=$(id);
   if(el) el.textContent=text;
@@ -492,7 +493,9 @@ async function openRequestChat(requestId) {
   activeChatRequestId = String(requestId);
   $('chatPanel').classList.remove('hidden');
   $('chatTitle').textContent = 'Чат по заявке PD-' + requestId;
-  await loadChatMessages();
+ await loadChatMessages();
+if (chatRefreshTimer) clearInterval(chatRefreshTimer);
+chatRefreshTimer = setInterval(loadChatMessages, 5000); 
 }
 
 async function loadChatMessages() {
@@ -587,6 +590,8 @@ $('chatInput').addEventListener('keydown', e => {
 });
 
 $('closeChatButton').addEventListener('click', () => {
+  if (chatRefreshTimer) clearInterval(chatRefreshTimer);
+  chatRefreshTimer = null;
   activeChatRequestId = null;
   $('chatPanel').classList.add('hidden');
 });
