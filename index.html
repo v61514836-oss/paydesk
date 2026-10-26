@@ -629,10 +629,6 @@ markChatRead(activeChatRequestId, data || []);
 await updateUnreadCount();
 
 
-if (error) throw error;
-
-markChatRead(activeChatRequestId, data || []);
-await updateUnreadCount();
 
 const box = $('chatMessages');
 box.replaceChildren();
