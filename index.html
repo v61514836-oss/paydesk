@@ -96,6 +96,16 @@ a{color:#1769e0}
 <p id="authMessage" class="muted" role="status"></p>
 </section>
 
+<section id="passwordRecoveryPanel" class="panel hidden">
+  <h2>Новый пароль</h2>
+  <p>Введи новый пароль для своего аккаунта.</p>
+  <label for="newPassword">Новый пароль</label>
+  <input id="newPassword" type="password" autocomplete="new-password" placeholder="Минимум 8 символов">
+  <button id="saveNewPasswordButton" class="full" type="button">Сохранить новый пароль</button>
+  <button id="cancelPasswordRecoveryButton" class="secondary full" type="button">Назад ко входу</button>
+  <p id="passwordRecoveryMessage" class="muted" role="status"></p>
+</section>
+
 <section id="accountPanel" class="panel hidden">
 <h2>Личный кабинет</h2>
 <p>Email: <strong id="accountEmail"></strong></p>
