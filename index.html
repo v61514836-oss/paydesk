@@ -525,6 +525,7 @@ async function openRequestChat(requestId) {
 
   activeChatRequestId = String(requestId);
   $('chatPanel').classList.remove('hidden');
+  $('chatPanel').classList.remove('chat-open');
 $('chatPanel').classList.add('chat-open');
   $('chatTitle').textContent = 'Чат по заявке PD-' + requestId;
  await loadChatMessages();
