@@ -612,10 +612,15 @@ async function loadChatMessages() {
       .order('created_at', { ascending: true })
       .limit(200);
 
-    if (error) throw error;
+    
+if (error) throw error;
 
-    const box = $('chatMessages');
-    box.replaceChildren();
+markChatRead(activeChatRequestId, data || []);
+await updateUnreadCount();
+
+const box = $('chatMessages');
+box.replaceChildren();
+
     const senderIds = [...new Set(data.map(item => item.sender_id))];
 const { data: profiles } = await db
   .from('profiles')
