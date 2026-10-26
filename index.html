@@ -184,7 +184,14 @@ function showTab(tab){
   ['exchange','requests','info','admin'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
   });
-  async function loadAdmin(){
+  document.querySelectorAll('[data-tab]').forEach(btn=>{
+    btn.classList.toggle('secondary',btn.dataset.tab!==tab);
+  });
+  if(tab==='requests') loadRequests();
+  if(tab==='admin') loadAdmin();
+}
+
+async function loadAdmin(){
   if(!db||!user){
     message('adminMessage','Сначала войди в аккаунт.');
     return;
@@ -201,8 +208,8 @@ function showTab(tab){
       db.from('profiles').select('id,role').limit(100)
     ]);
 
-    if(rq.error)throw new Error('Заявки: '+rq.error.message);
-    if(pr.error)throw new Error('Пользователи: '+pr.error.message);
+    if(rq.error) throw new Error('Заявки: '+rq.error.message);
+    if(pr.error) throw new Error('Пользователи: '+pr.error.message);
 
     const labels={new:'Новая',processing:'В обработке',
       completed:'Завершена',cancelled:'Отменена'};
@@ -248,7 +255,7 @@ async function adminSaveStatus(id){
     const status=$('admin-status-'+id).value;
     const {error}=await db.from('exchange_requests')
       .update({status}).eq('id',id);
-    if(error)throw error;
+    if(error) throw error;
     await loadAdmin();
   }catch(e){
     message('adminMessage','Ошибка сохранения статуса: '+e.message);
@@ -259,11 +266,11 @@ async function adminSaveRole(id){
   try{
     if(!user||await profileRole(user.id)!=='admin')
       throw new Error('Нет прав администратора.');
-    if(id===user.id)throw new Error('Свою роль менять нельзя.');
+    if(id===user.id) throw new Error('Свою роль менять нельзя.');
     const role=$('admin-role-'+id).value;
     const {error}=await db.from('profiles')
       .update({role}).eq('id',id);
-    if(error)throw error;
+    if(error) throw error;
     await loadAdmin();
   }catch(e){
     message('adminMessage','Ошибка сохранения роли: '+e.message);
@@ -273,18 +280,12 @@ async function adminSaveRole(id){
 $('adminRefresh').addEventListener('click',loadAdmin);
 $('adminRequests').addEventListener('click',e=>{
   const b=e.target.closest('[data-admin-status]');
-  if(b)adminSaveStatus(b.dataset.adminStatus);
+  if(b) adminSaveStatus(b.dataset.adminStatus);
 });
 $('adminProfiles').addEventListener('click',e=>{
   const b=e.target.closest('[data-admin-role]');
-  if(b)adminSaveRole(b.dataset.adminRole);
+  if(b) adminSaveRole(b.dataset.adminRole);
 });
-  document.querySelectorAll('[data-tab]').forEach(btn=>{
-    btn.classList.toggle('secondary',btn.dataset.tab!==tab);
-  });
-  if(tab==='requests') loadRequests();
-  if(tab==='admin') loadAdmin();
-}
 
 function loggedIn(account,role){
   user=account;
