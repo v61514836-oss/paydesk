@@ -857,6 +857,13 @@ $('registerButton').addEventListener('click',register);
 $('logoutButton').addEventListener('click',logout);
 $('createButton').addEventListener('click',createRequest);
 $('refreshButton').addEventListener('click',loadRequests);
+  $('saveNewPasswordButton').addEventListener('click',saveNewPassword);
+
+$('cancelPasswordRecoveryButton').addEventListener('click',()=>{
+  $('passwordRecoveryPanel').classList.add('hidden');
+  $('authPanel').classList.remove('hidden');
+  history.replaceState(null,'',window.location.pathname);
+});
 
 try{
   if(window.supabase&&window.supabase.createClient){
