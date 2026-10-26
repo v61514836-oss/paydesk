@@ -777,14 +777,12 @@ const rolesById = Object.fromEntries(
       const who = document.createElement('b');
 const role = rolesById[item.sender_id];
 
-
 if (item.sender_id === user.id) {
   who.textContent = 'Ты';
 } else {
   who.textContent = role === 'admin' ? '🛡️ PayDesk Команда' :
     role === 'partner' ? '🤝 PayDesk Партнёр' : 'PayDesk Клиент';
 }
-
 
       const body = document.createElement('p');
       body.style.whiteSpace = 'pre-wrap';
