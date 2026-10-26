@@ -612,7 +612,9 @@ async function openRequestChat(requestId) {
 if (await profileRole(user.id) === 'admin') {
   document.body.appendChild($('chatPanel'));
 }
-  activeChatRequestId = String(requestId);
+activeChatRequestId = String(requestId);
+$('chatPanel').classList.remove('hidden');
+$('chatPanel').classList.add('chat-open');
   $('chatPanel').classList.remove('hidden');
   $('chatPanel').classList.remove('chat-open');
 $('chatPanel').classList.add('chat-open');
