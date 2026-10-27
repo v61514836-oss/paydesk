@@ -564,7 +564,7 @@ async function loadPartner(){
 
     const {data:account,error:accountError}=await db
       .from('partner_accounts')
-      .select('external_deposit_verified,test_balance,max_request_amount,max_active_requests,is_enabled')
+     .select('external_deposit_verified,deposit_eur,reserved_eur,is_enabled')
       .eq('user_id',user.id)
       .maybeSingle();
 
