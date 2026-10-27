@@ -378,6 +378,20 @@ a {
   <input id="chatInput" maxlength="4000"
          placeholder="Напиши сообщение" autocomplete="off">
   <button id="sendChatButton" class="full" type="button">
+      <input
+    id="chatImageInput"
+    type="file"
+    accept="image/*"
+    hidden
+  >
+  <button
+    id="attachImageButton"
+    class="secondary full"
+    type="button"
+  >
+    📎 Прикрепить фото
+  </button>
+  <p id="chatImageStatus" class="muted"></p>
     Отправить
   </button>
   <button id="closeChatButton" class="secondary full" type="button">
