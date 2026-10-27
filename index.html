@@ -510,6 +510,26 @@ a {
 const URL='https://xnaiqqlfewgpkylzcneg.supabase.co';
 const KEY='sb_publishable_K319xCjRcAFFlP2nZU2XLQ_lhu8tcyo';
 const $=id=>document.getElementById(id);
+  document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('loginButton');
+  if (btn) btn.addEventListener('click', function () {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const msg = document.getElementById('authMessage');
+
+    if (!window.supabase || !window.supabase.createClient) {
+      msg.textContent = 'Не загрузился Supabase. Обнови страницу.';
+      return;
+    }
+
+    if (!email || !password) {
+      msg.textContent = 'Введи email и пароль.';
+      return;
+    }
+
+    msg.textContent = 'Проверяем подключение…';
+  });
+});
 let db=null;
 let user=null;
 let requests=[];
