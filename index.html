@@ -886,24 +886,17 @@ async function adminSavePartnerSettings() {
     }
 
     const id = $('partnerAdminSearch').value.trim();
+    const depositInput = $('partnerAdminDeposit').value;
+    const deposit = Number(depositInput);
 
-    if (!id) {
-      throw new Error('Введи ID партнёра.');
-    }
-
-    const balance = Number($('partnerAdminBalance').value);
-    const maxRequest = Number($('partnerAdminMaxRequest').value);
-    const maxActive = Number($('partnerAdminMaxActive').value);
+    if (!id) throw new Error('Введи ID партнёра.');
 
     if (
-      $('partnerAdminBalance').value === '' ||
-      $('partnerAdminMaxRequest').value === '' ||
-      $('partnerAdminMaxActive').value === '' ||
-      !Number.isFinite(balance) || balance < 0 ||
-      !Number.isFinite(maxRequest) || maxRequest < 0 ||
-      !Number.isInteger(maxActive) || maxActive < 0
+      depositInput === '' ||
+      !Number.isFinite(deposit) ||
+      deposit < 0
     ) {
-      throw new Error('Проверь числовые значения.');
+      throw new Error('Введи корректный депозит в евро.');
     }
 
     $('partnerAdminMessage').textContent = 'Сохраняю...';
@@ -912,34 +905,29 @@ async function adminSavePartnerSettings() {
       .from('partner_accounts')
       .upsert({
         user_id: id,
+        deposit_eur: deposit,
         external_deposit_verified:
           $('partnerAdminDepositVerified').checked,
         external_deposit_note:
           $('partnerAdminNote').value.trim() || null,
-        test_balance: balance,
-        max_request_amount: maxRequest,
-        max_active_requests: maxActive,
         is_enabled: $('partnerAdminEnabled').checked,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
-      .select(
-        'user_id, test_balance, max_request_amount, max_active_requests, external_deposit_verified, is_enabled, updated_at'
-      )
+      .select('user_id,deposit_eur,reserved_eur,external_deposit_verified,is_enabled')
       .single();
 
     if (error) throw error;
-
-    if (!data) {
-      throw new Error('Supabase не вернул сохранённую запись.');
-    }
+    if (!data) throw new Error('База не вернула сохранённую запись.');
 
     $('partnerAdminMessage').textContent =
-      'Проверено в базе: баланс ' + data.test_balance +
-      ', лимит ' + data.max_request_amount +
-      ', активных заявок ' + data.max_active_requests + '.';
-
+      'Сохранено. Депозит: ' +
+      Number(data.deposit_eur || 0).toFixed(2) +
+      ' €, резерв: ' +
+      Number(data.reserved_eur || 0).toFixed(2) +
+      ' €.';
   } catch (e) {
-    $('partnerAdminMessage').textContent = 'Ошибка сохранения: ' + e.message;
+    $('partnerAdminMessage').textContent =
+      'Ошибка сохранения: ' + e.message;
   }
 }
 
