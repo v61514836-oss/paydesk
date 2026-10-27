@@ -713,7 +713,7 @@ function loggedIn(account,role){
   const partnerTab=$('partnerTab');
 if(partnerTab) partnerTab.classList.toggle('hidden',role!=='partner');
 const adminTab = $('adminTab');
-if (adminTab) adminTab.hidden = (role !== 'admin');
+if (adminTab) adminTab.classList.toggle('hidden', role !== 'admin');
 
  const authPanel = $('authPanel'); const accountPanel = $('accountPanel'); if (authPanel) authPanel.classList.add('hidden'); if (accountPanel) accountPanel.classList.remove('hidden');
   $('chatFab').hidden=false;
