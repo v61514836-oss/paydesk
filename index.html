@@ -567,7 +567,7 @@ async function loadAdmin(){
       db.from('exchange_requests')
         .select('id,customer_id,partner_id,from_country,from_currency,to_currency,amount,contact,status,created_at')
         .order('created_at',{ascending:false}).limit(100),
-      db.from('profiles').select('id,role').limit(100)
+      db.from('profiles').select('id,role,email').limit(100)
     ]);
 
     if(rq.error) throw new Error('Заявки: '+rq.error.message);
