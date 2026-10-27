@@ -924,6 +924,7 @@ external_deposit_note:
 
 
 $('adminRefresh').addEventListener('click',loadAdmin);
+  $('partnerAdminSave').addEventListener('click', adminSavePartnerSettings);
 $('adminRequests').addEventListener('click', e => {
   const chatButton = e.target.closest('[data-chat-request]');
   if (chatButton) {
