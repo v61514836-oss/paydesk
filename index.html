@@ -789,10 +789,46 @@ async function adminSaveStatus(id){
   try{
     if(!user||await profileRole(user.id)!=='admin')
       throw new Error('Нет прав администратора.');
+
     const status=$('admin-status-'+id).value;
-    const {error}=await db.from('exchange_requests')
-      .update({status}).eq('id',id);
-    if(error) throw error;
+
+    const {data:request,error:requestError}=await db
+      .from('exchange_requests')
+      .select('status,partner_id')
+      .eq('id',id)
+      .single();
+
+    if(requestError) throw requestError;
+
+    if(status==='completed'||status==='cancelled'){
+      if(request.status!=='processing'){
+        throw new Error(
+          'Завершить или отменить можно только принятую заявку.'
+        );
+      }
+
+      const {error}=await db.rpc(
+        'paydesk_release_request',
+        {
+          p_request_id:id,
+          p_new_status:status
+        }
+      );
+
+      if(error) throw error;
+    }else{
+      if(status==='processing'&&request.status==='new'){
+        throw new Error(
+          'Заявку должен принять партнёр через свою панель.'
+        );
+      }
+
+      const {error}=await db.from('exchange_requests')
+        .update({status}).eq('id',id);
+
+      if(error) throw error;
+    }
+
     await loadAdmin();
   }catch(e){
     message('adminMessage','Ошибка сохранения статуса: '+e.message);
