@@ -1028,6 +1028,7 @@ document.querySelectorAll('[data-tab]').forEach(btn=>{
   btn.addEventListener('click',()=>showTab(btn.dataset.tab));
 });
  
+
 const currencyByCountry = {
   Germany: 'EUR',
   Netherlands: 'EUR',
@@ -1040,6 +1041,23 @@ const currencyByCountry = {
   Czechia: 'CZK',
   Romania: 'RON'
 };
+
+function syncCurrencyWithCountry() {
+  const countrySelect = $('fromCountry');
+  const currencySelect = $('from');
+
+  if (!countrySelect || !currencySelect) return;
+
+  const currency = currencyByCountry[countrySelect.value];
+
+  if (currency) {
+    currencySelect.value = currency;
+  }
+}
+
+$('fromCountry').addEventListener('change', syncCurrencyWithCountry);
+syncCurrencyWithCountry();
+
 
 $('fromCountry').addEventListener('change', function () {
   const currency = currencyByCountry[this.value];
