@@ -919,14 +919,12 @@ const rolesById = Object.fromEntries(
       const row = document.createElement('div');
       row.className = 'request';
 
-      const who = document.createElement('b');
-const role = rolesById[item.sender_id];
+const who = document.createElement('b');
 
 if (item.sender_id === user.id) {
   who.textContent = 'Ты';
 } else {
   who.textContent = '';
-    role === 'partner' ? '🤝 PayDesk Партнёр' : 'PayDesk Клиент';
 }
 
       const body = document.createElement('p');
