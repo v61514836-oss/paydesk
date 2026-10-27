@@ -562,7 +562,7 @@ async function acceptPartnerRequest(id){
     alert('Не удалось принять заявку: ' + e.message);
   }
 }
-
+window.acceptPartnerRequest = acceptPartnerRequest;
 async function loadPartner(){
     if(!db || !user){
     message('partnerMessage','Сначала войди в аккаунт.');
