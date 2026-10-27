@@ -1538,6 +1538,75 @@ async function sendChatMessage() {
 
 $('sendChatButton').addEventListener('click', sendChatMessage);
 
+async function recordWorkflowAction(action) {
+  if (!db || !user || !activeChatRequestId) {
+    message('chatStatus', 'Сначала открой чат заявки.');
+    return;
+  }
+
+  const actions = {
+    detailsReceivedButton: {
+      role: 'customer',
+      text: 'Этап заявки: клиент подтвердил получение реквизитов.'
+    },
+    customerPaidButton: {
+      role: 'customer',
+      text: 'Этап заявки: клиент сообщил, что оплатил.'
+    },
+    partnerFundsReceivedButton: {
+      role: 'partner',
+      text: 'Этап заявки: партнёр подтвердил получение денег.'
+    }
+  };
+
+  const item = actions[action];
+  if (!item) return;
+
+  try {
+    const role = await profileRole(user.id);
+
+    if (role !== item.role) {
+      message('chatStatus', 'Это действие недоступно для вашей роли.');
+      return;
+    }
+
+    if (
+      action === 'partnerFundsReceivedButton' &&
+      !confirm('Подтверждаешь, что деньги действительно поступили?')
+    ) {
+      return;
+    }
+
+    const { error } = await db.from('chat_messages').insert({
+      request_id: activeChatRequestId,
+      sender_id: user.id,
+      message: item.text
+    });
+
+    if (error) throw error;
+
+    await loadChatMessages();
+    message(
+      'chatStatus',
+      'Действие записано в историю чата. Статус заявки пока не изменён.'
+    );
+  } catch (e) {
+    message('chatStatus', 'Не удалось записать действие: ' + e.message);
+  }
+}
+
+$('detailsReceivedButton').addEventListener('click', () => {
+  recordWorkflowAction('detailsReceivedButton');
+});
+
+$('customerPaidButton').addEventListener('click', () => {
+  recordWorkflowAction('customerPaidButton');
+});
+
+$('partnerFundsReceivedButton').addEventListener('click', () => {
+  recordWorkflowAction('partnerFundsReceivedButton');
+});
+
 $('chatInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendChatMessage();
 });
