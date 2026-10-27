@@ -486,6 +486,7 @@ function escapeHTML(value){
   })[c]);
 }
 
+
 async function loadPartner(){
   if(!db || !user){
     message('partnerMessage','Сначала войди в аккаунт.');
@@ -499,43 +500,82 @@ async function loadPartner(){
       throw new Error('У аккаунта нет роли партнёра.');
     }
 
-    const {data,error}=await db
+    const {data:account,error:accountError}=await db
       .from('partner_accounts')
       .select('external_deposit_verified,test_balance,max_request_amount,max_active_requests,is_enabled')
       .eq('user_id',user.id)
       .maybeSingle();
 
-    if(error) throw error;
+    if(accountError) throw accountError;
 
-    if(!data){
+    if(!account){
       $('partnerDepositStatus').textContent='Не настроен';
       $('partnerTestBalance').textContent='0.00';
       $('partnerMaxRequest').textContent='0.00';
       $('partnerMaxActive').textContent='0';
-      message('partnerMessage','Администратор ещё не настроил аккаунт партнёра.');
+      $('partnerMessage').textContent=
+        'Администратор ещё не настроил аккаунт партнёра.';
+      $('partnerRequests').innerHTML=
+        '<p class="muted">Нет настроек партнёра.</p>';
       return;
     }
 
     $('partnerDepositStatus').textContent=
-      data.external_deposit_verified ? 'Подтверждён' : 'Не подтверждён';
+      account.external_deposit_verified ? 'Подтверждён' : 'Не подтверждён';
 
     $('partnerTestBalance').textContent=
-      Number(data.test_balance).toFixed(2);
+      Number(account.test_balance || 0).toFixed(2);
 
     $('partnerMaxRequest').textContent=
-      Number(data.max_request_amount).toFixed(2);
+      Number(account.max_request_amount || 0).toFixed(2);
 
     $('partnerMaxActive').textContent=
-      String(data.max_active_requests);
+      String(account.max_active_requests ?? 0);
+
+    const enabled=account.is_enabled &&
+      account.external_deposit_verified;
 
     message(
       'partnerMessage',
-      data.is_enabled
+      enabled
         ? 'Аккаунт партнёра включён.'
-        : 'Аккаунт партнёра отключён администратором.'
+        : 'Приём заявок недоступен: проверь статус аккаунта и депозит.'
     );
+
+    const list=$('partnerRequests');
+    list.textContent='Загружаем заявки…';
+
+    const {data:items,error:requestsError}=await db
+      .from('exchange_requests')
+      .select('id,from_country,from_currency,to_currency,amount,status,created_at')
+      .eq('status','new')
+      .order('created_at',{ascending:false})
+      .limit(50);
+
+    if(requestsError) throw requestsError;
+
+    if(!items || items.length===0){
+      list.innerHTML='<p class="muted">Новых заявок пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML=items.map(r=>`
+      <div class="card" style="margin-bottom:10px">
+        <b>Заявка #${escapeHTML(r.id)}</b>
+        <p>Страна: ${escapeHTML(r.from_country || 'Не указана')}</p>
+        <p>Обмен: ${escapeHTML(r.from_currency || '')}
+          → ${escapeHTML(r.to_currency || '')}</p>
+        <p>Сумма: ${escapeHTML(r.amount)}</p>
+        <p>Статус: Новая</p>
+        <button type="button" disabled>
+          Принятие настраивается
+        </button>
+      </div>
+    `).join('');
+
   }catch(e){
     message('partnerMessage','Ошибка загрузки: '+e.message);
+    $('partnerRequests').textContent='Не удалось загрузить заявки.';
   }
 }
 
