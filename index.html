@@ -681,7 +681,62 @@ $('partnerRequests').addEventListener('click', function(e){
   if(!btn) return;
   acceptPartnerRequest(Number(btn.dataset.requestId));
 });
+async function loadPartnerAcceptedRequests(){
+  const list = $('partnerAcceptedRequests');
 
+  if (!db || !user) {
+    list.innerHTML = '<p class="muted">Сначала войди в аккаунт.</p>';
+    return;
+  }
+
+  list.textContent = 'Загружаем принятые заявки…';
+
+  try {
+    const { data, error } = await db
+      .from('exchange_requests')
+      .select('id,from_country,from_currency,to_currency,amount,status,created_at')
+      .eq('partner_id', user.id)
+      .in('status', ['processing','completed','cancelled'])
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      list.innerHTML =
+        '<p class="muted">Принятых заявок пока нет.</p>';
+      return;
+    }
+
+    list.innerHTML = data.map(r => `
+      <div class="card" style="margin-bottom:10px">
+        <b>Заявка #${escapeHTML(r.id)}</b>
+        <p>Страна: ${escapeHTML(r.from_country || 'Не указана')}</p>
+        <p>Обмен: ${escapeHTML(r.from_currency || '')}
+          → ${escapeHTML(r.to_currency || '')}</p>
+        <p>Сумма: ${escapeHTML(r.amount)}</p>
+        <p>Статус: ${escapeHTML(r.status)}</p>
+        <button type="button"
+          data-partner-chat="${Number(r.id)}">
+          Открыть чат по заявке
+        </button>
+      </div>
+    `).join('');
+  } catch (e) {
+    list.textContent = 'Ошибка загрузки: ' + e.message;
+  }
+}
+
+$('partnerAcceptedRefresh').addEventListener(
+  'click',
+  loadPartnerAcceptedRequests
+);
+
+$('partnerAcceptedRequests').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-partner-chat]');
+  if (!btn) return;
+  openRequestChat(btn.dataset.partnerChat);
+});
 function showTab(tab){
   ['exchange','requests','info','admin','partner'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
