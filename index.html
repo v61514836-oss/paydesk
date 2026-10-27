@@ -1185,7 +1185,7 @@ async function createRequest(){
       status:'new'
     }).select('id').single();
     if(error)throw error;
-    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/telegram-notify',{
+    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/PayDesk-telegram-notify',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
   body:JSON.stringify({
