@@ -820,14 +820,18 @@ async function adminLoadPartnerSettings(){
   }
 }
 
-async function adminSavePartnerSettings(){
+
+async function adminSavePartnerSettings() {
   try {
     if (!user || await profileRole(user.id) !== 'admin') {
       throw new Error('Нет прав администратора.');
     }
 
     const id = $('partnerAdminSearch').value.trim();
-    if (!id) throw new Error('Введи ID партнёра.');
+
+    if (!id) {
+      throw new Error('Введи ID партнёра.');
+    }
 
     const balance = Number($('partnerAdminBalance').value);
     const maxRequest = Number($('partnerAdminMaxRequest').value);
@@ -844,7 +848,9 @@ async function adminSavePartnerSettings(){
       throw new Error('Проверь числовые значения.');
     }
 
-    const {error} = await db
+    $('partnerAdminMessage').textContent = 'Сохраняю...';
+
+    const { data, error } = await db
       .from('partner_accounts')
       .upsert({
         user_id: id,
@@ -857,14 +863,25 @@ async function adminSavePartnerSettings(){
         max_active_requests: maxActive,
         is_enabled: $('partnerAdminEnabled').checked,
         updated_at: new Date().toISOString()
-      }, {onConflict: 'user_id'});
+      }, { onConflict: 'user_id' })
+      .select(
+        'user_id, test_balance, max_request_amount, max_active_requests, external_deposit_verified, is_enabled, updated_at'
+      )
+      .single();
 
     if (error) throw error;
 
+    if (!data) {
+      throw new Error('Supabase не вернул сохранённую запись.');
+    }
+
     $('partnerAdminMessage').textContent =
-      'Настройки сохранены.';
+      'Проверено в базе: баланс ' + data.test_balance +
+      ', лимит ' + data.max_request_amount +
+      ', активных заявок ' + data.max_active_requests + '.';
+
   } catch (e) {
-    $('partnerAdminMessage').textContent = 'Ошибка: ' + e.message;
+    $('partnerAdminMessage').textContent = 'Ошибка сохранения: ' + e.message;
   }
 }
 
