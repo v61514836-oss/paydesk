@@ -524,12 +524,12 @@ function message(id,text){
 }
 
 function escapeHTML(value){
-  return String(value??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#
-  if(!db || !user){
-    message('partnerMessage','Сначала войди в аккаунт.');
-    return;
-  }
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
   })[c]);
 }
 
