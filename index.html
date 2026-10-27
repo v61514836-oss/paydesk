@@ -1024,27 +1024,43 @@ $('adminProfiles').addEventListener('click',e=>{
 });
 
 
-function loggedIn(account,role){
-  user=account;
-  $('accountEmail').textContent=account.email||'';
-  $('accountRole').textContent=role||'customer';
-  const partnerTab=$('partnerTab');
-if(partnerTab) partnerTab.classList.toggle('hidden',role!=='partner');
-const adminTab = $('adminTab');
-if (adminTab) adminTab.classList.toggle('hidden', role !== 'admin');
-const partnerAdminManagement = $('partnerAdminManagement');
-if (partnerAdminManagement) {
-  partnerAdminManagement.classList.toggle('hidden', role !== 'admin');
-}
- const authPanel = $('authPanel'); const accountPanel = $('accountPanel'); if (authPanel) authPanel.classList.add('hidden'); if (accountPanel) accountPanel.classList.remove('hidden');
-  $('chatFab').hidden=false;
-  
-if (unreadRefreshTimer) clearInterval(unreadRefreshTimer);
-updateUnreadCount();
-unreadRefreshTimer = setInterval(updateUnreadCount, 10000);
+function loggedIn(account, role) {
+  user = account;
+  $('accountEmail').textContent = account.email || '';
+  $('accountRole').textContent = role || 'customer';
 
-}
+  const partnerTab = $('partnerTab');
+  if (partnerTab) {
+    partnerTab.classList.toggle('hidden', role !== 'partner');
+  }
 
+  const adminTab = $('adminTab');
+  if (adminTab) {
+    adminTab.classList.toggle('hidden', role !== 'admin');
+  }
+
+  const partnerAdminManagement = $('partnerAdminManagement');
+  if (partnerAdminManagement) {
+    partnerAdminManagement.classList.toggle('hidden', role !== 'admin');
+  }
+
+  $('authPanel').classList.add('hidden');
+  $('accountPanel').classList.remove('hidden');
+
+  if (role === 'partner') {
+    showTab('partner');
+  } else if (role === 'admin') {
+    showTab('admin');
+  } else {
+    showTab('exchange');
+  }
+
+  $('chatFab').hidden = false;
+
+  if (unreadRefreshTimer) clearInterval(unreadRefreshTimer);
+  updateUnreadCount();
+  unreadRefreshTimer = setInterval(updateUnreadCount, 10000);
+}
 
 function loggedOut(){
   user=null;
