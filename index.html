@@ -788,6 +788,93 @@ async function adminSaveRole(id){
   }
 }
 
+async function adminLoadPartnerSettings(){
+  try {
+    if (!user || await profileRole(user.id) !== 'admin') {
+      throw new Error('Нет прав администратора.');
+    }
+
+    const id = $('partnerAdminSearch').value.trim();
+    if (!id) throw new Error('Введи ID партнёра.');
+
+    const {data, error} = await db
+      .from('partner_accounts')
+      .select('user_id,external_deposit_verified,external_deposit_note,test_balance,max_request_amount,max_active_requests,is_enabled')
+      .eq('user_id', id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) throw new Error('Партнёр не найден в partner_accounts.');
+
+    $('partnerAdminDepositVerified').checked =
+      !!data.external_deposit_verified;
+    $('partnerAdminBalance').value = data.test_balance ?? 0;
+    $('partnerAdminMaxRequest').value = data.max_request_amount ?? 0;
+    $('partnerAdminMaxActive').value = data.max_active_requests ?? 3;
+    $('partnerAdminEnabled').checked = !!data.is_enabled;
+    $('partnerAdminNote').value = data.external_deposit_note || '';
+
+    $('partnerAdminMessage').textContent = 'Данные загружены.';
+  } catch (e) {
+    $('partnerAdminMessage').textContent = 'Ошибка: ' + e.message;
+  }
+}
+
+async function adminSavePartnerSettings(){
+  try {
+    if (!user || await profileRole(user.id) !== 'admin') {
+      throw new Error('Нет прав администратора.');
+    }
+
+    const id = $('partnerAdminSearch').value.trim();
+    if (!id) throw new Error('Введи ID партнёра.');
+
+    const balance = Number($('partnerAdminBalance').value);
+    const maxRequest = Number($('partnerAdminMaxRequest').value);
+    const maxActive = Number($('partnerAdminMaxActive').value);
+
+    if (
+      $('partnerAdminBalance').value === '' ||
+      $('partnerAdminMaxRequest').value === '' ||
+      $('partnerAdminMaxActive').value === '' ||
+      !Number.isFinite(balance) || balance < 0 ||
+      !Number.isFinite(maxRequest) || maxRequest < 0 ||
+      !Number.isInteger(maxActive) || maxActive < 0
+    ) {
+      throw new Error('Проверь числовые значения.');
+    }
+
+    const {error} = await db
+      .from('partner_accounts')
+      .upsert({
+        user_id: id,
+        external_deposit_verified:
+          $('partnerAdminDepositVerified').checked,
+        external_deposit_note:
+          $('partnerAdminNote').value.trim() || null,
+        test_balance: balance,
+        max_request_amount: maxRequest,
+        max_active_requests: maxActive,
+        is_enabled: $('partnerAdminEnabled').checked,
+        updated_at: new Date().toISOString()
+      }, {onConflict: 'user_id'});
+
+    if (error) throw error;
+
+    $('partnerAdminMessage').textContent =
+      'Настройки сохранены.';
+  } catch (e) {
+    $('partnerAdminMessage').textContent = 'Ошибка: ' + e.message;
+  }
+}
+
+$('partnerAdminLoad').addEventListener(
+  'click', adminLoadPartnerSettings
+);
+$('partnerAdminSave').addEventListener(
+  'click', adminSavePartnerSettings
+);
+
 $('adminRefresh').addEventListener('click',loadAdmin);
 $('adminRequests').addEventListener('click', e => {
   const chatButton = e.target.closest('[data-chat-request]');
