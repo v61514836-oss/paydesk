@@ -651,11 +651,9 @@ $('partnerAvailableEur').textContent=available.toFixed(2)+' €';
           → ${escapeHTML(r.to_currency || '')}</p>
         <p>Сумма: ${escapeHTML(r.amount)}</p>
         <p>Статус: Новая</p>
-        <button type="button" disabled>
-          <button type="button"
-  onclick="acceptPartnerRequest(${Number(r.id)})">
-  Принять заявку
-</button>
+               <button type="button"
+          onclick="acceptPartnerRequest(${Number(r.id)})">
+          Принять заявку
         </button>
       </div>
     `).join('');
