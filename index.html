@@ -1386,9 +1386,7 @@ async function openRequestChat(requestId) {
     message('chatStatus', 'Сначала войди в аккаунт.');
     return;
   }
-if (await profileRole(user.id) === 'admin') {
-  document.body.appendChild($('chatPanel'));
-}
+document.body.appendChild($('chatPanel'));
 activeChatRequestId = String(requestId);
 $('chatPanel').classList.remove('hidden');
 $('chatPanel').classList.add('chat-open');
