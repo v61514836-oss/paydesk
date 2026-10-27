@@ -896,9 +896,7 @@ async function adminSavePartnerSettings() {
       .upsert({
         user_id: id,
         deposit_eur: deposit,
-        external_deposit_verified:
-          $('partnerAdminDepositVerified').checked,
-        external_deposit_note:
+        external_deposit_verified: true,
           $('partnerAdminNote').value.trim() || null,
         is_enabled: $('partnerAdminEnabled').checked,
         updated_at: new Date().toISOString()
