@@ -1617,6 +1617,34 @@ try{
   console.error('Supabase initialization:',e);
 }
 restore();
+  
+let workflowRefreshBusy = false;
+
+setInterval(async () => {
+  if (!db || !user || workflowRefreshBusy || document.hidden) return;
+
+  workflowRefreshBusy = true;
+  try {
+    const role = await profileRole(user.id);
+    const activeTab = ['exchange', 'requests', 'info', 'admin', 'partner']
+      .find(id => !$(id).classList.contains('hidden'));
+
+    if (role === 'partner' && activeTab === 'partner') {
+      await Promise.all([loadPartner(), loadPartnerAcceptedRequests()]);
+    } else if (role === 'customer' && activeTab === 'requests') {
+      await loadRequests();
+    } else if (role === 'admin' && activeTab === 'admin') {
+      await loadAdmin();
+    }
+
+    if (activeChatRequestId) await loadChatMessages();
+  } catch (e) {
+    console.warn('Автообновление PayDesk:', e.message);
+  } finally {
+    workflowRefreshBusy = false;
+  }
+}, 12000);
+
 })();
 </script>
 </body>
