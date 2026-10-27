@@ -572,9 +572,9 @@ async function loadPartner(){
 
     if(!account){
       $('partnerDepositStatus').textContent='Не настроен';
-      $('partnerTestBalance').textContent='0.00';
-      $('partnerMaxRequest').textContent='0.00';
-      $('partnerMaxActive').textContent='0';
+      $('partnerDepositEur').textContent='0.00 €';
+$('partnerReservedEur').textContent='0.00 €';
+$('partnerAvailableEur').textContent='0.00 €';
       $('partnerMessage').textContent=
         'Администратор ещё не настроил аккаунт партнёра.';
       $('partnerRequests').innerHTML=
