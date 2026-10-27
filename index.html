@@ -1185,6 +1185,17 @@ async function createRequest(){
       status:'new'
     }).select('id').single();
     if(error)throw error;
+    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/telegram-notify',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+    event:'request_created',
+    requestId:data.id,
+    amount:amount,
+    fromCurrency:from,
+    country:country
+  })
+}).catch(console.error);
     $('amount').value='';
     $('contact').value='';
     message('createMessage','Заявка создана: PD-'+data.id);
