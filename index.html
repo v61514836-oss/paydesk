@@ -633,7 +633,8 @@ function loggedIn(account,role){
   user=account;
   $('accountEmail').textContent=account.email||'';
   $('accountRole').textContent=role||'customer';
-  
+  const partnerTab=$('partnerTab');
+if(partnerTab) partnerTab.classList.toggle('hidden',role!=='partner');
 const adminTab = $('adminTab');
 if (adminTab) adminTab.hidden = (role !== 'admin');
 
