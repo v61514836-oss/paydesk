@@ -454,6 +454,62 @@ function escapeHTML(value){
   })[c]);
 }
 
+async function loadPartner(){
+  if(!db || !user){
+    message('partnerMessage','Сначала войди в аккаунт.');
+    return;
+  }
+
+  message('partnerMessage','Загружаем данные партнёра…');
+
+  try{
+    if(await profileRole(user.id)!=='partner'){
+      throw new Error('У аккаунта нет роли партнёра.');
+    }
+
+    const {data,error}=await db
+      .from('partner_accounts')
+      .select('external_deposit_verified,test_balance,max_request_amount,max_active_requests,is_enabled')
+      .eq('user_id',user.id)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(!data){
+      $('partnerDepositStatus').textContent='Не настроен';
+      $('partnerTestBalance').textContent='0.00';
+      $('partnerMaxRequest').textContent='0.00';
+      $('partnerMaxActive').textContent='0';
+      message('partnerMessage','Администратор ещё не настроил аккаунт партнёра.');
+      return;
+    }
+
+    $('partnerDepositStatus').textContent=
+      data.external_deposit_verified ? 'Подтверждён' : 'Не подтверждён';
+
+    $('partnerTestBalance').textContent=
+      Number(data.test_balance).toFixed(2);
+
+    $('partnerMaxRequest').textContent=
+      Number(data.max_request_amount).toFixed(2);
+
+    $('partnerMaxActive').textContent=
+      String(data.max_active_requests);
+
+    message(
+      'partnerMessage',
+      data.is_enabled
+        ? 'Аккаунт партнёра включён.'
+        : 'Аккаунт партнёра отключён администратором.'
+    );
+  }catch(e){
+    message('partnerMessage','Ошибка загрузки: '+e.message);
+  }
+}
+
+$('partnerRefresh').addEventListener('click',loadPartner);
+
+
 function showTab(tab){
   ['exchange','requests','info','admin','partner'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
