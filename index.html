@@ -655,7 +655,11 @@ $('partnerAvailableEur').textContent=available.toFixed(2)+' €';
 }
 
 $('partnerRefresh').addEventListener('click',loadPartner);
-
+$('partnerRequests').addEventListener('click', function(e){
+  const btn = e.target.closest('button[data-request-id]');
+  if(!btn) return;
+  acceptPartnerRequest(Number(btn.dataset.requestId));
+});
 
 function showTab(tab){
   ['exchange','requests','info','admin','partner'].forEach(id=>{
