@@ -1060,7 +1060,7 @@ async function register(){
   try{
     const {data,error}=await db.auth.signUp({email,password});
     if(error) throw error;
-    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/telegram-notify',{
+    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/PayDesk-telegram-notify',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
   body:JSON.stringify({
