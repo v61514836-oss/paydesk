@@ -642,7 +642,7 @@ $('partnerAvailableEur').textContent=available.toFixed(2)+' €';
         <p>Сумма: ${escapeHTML(r.amount)}</p>
         <p>Статус: Новая</p>
                <button type="button"
-          onclick="acceptPartnerRequest(${Number(r.id)})">
+          data-request-id="${Number(r.id)}">
           Принять заявку
         </button>
       </div>
