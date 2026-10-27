@@ -544,17 +544,40 @@ function message(id,text){
 
 function escapeHTML(value){
   return String(value??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[c]);
-}
-
-
-async function loadPartner(){
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#
   if(!db || !user){
     message('partnerMessage','Сначала войди в аккаунт.');
     return;
   }
+  })[c]);
+}
 
+async function acceptPartnerRequest(id){
+  if(!db || !user){
+    alert('Сначала войди в аккаунт.');
+    return;
+  }
+
+  if(!confirm('Принять заявку #' + id + '?')){
+    return;
+  }
+
+  try{
+    const {data,error}=await db.rpc(
+      'paydesk_accept_request',
+      {p_request_id:id}
+    );
+
+    if(error) throw error;
+
+    alert('Заявка принята.');
+    await loadPartner();
+  }catch(e){
+    alert('Не удалось принять заявку: ' + e.message);
+  }
+}
+
+async function loadPartner(){
   message('partnerMessage','Загружаем данные партнёра…');
 
   try{
@@ -629,7 +652,10 @@ $('partnerAvailableEur').textContent=available.toFixed(2)+' €';
         <p>Сумма: ${escapeHTML(r.amount)}</p>
         <p>Статус: Новая</p>
         <button type="button" disabled>
-          Принятие настраивается
+          <button type="button"
+  onclick="acceptPartnerRequest(${Number(r.id)})">
+  Принять заявку
+</button>
         </button>
       </div>
     `).join('');
