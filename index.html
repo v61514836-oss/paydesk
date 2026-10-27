@@ -577,9 +577,9 @@ async function acceptPartnerRequest(id){
 
     if(error) throw error;
 
-   580:     alert('Заявка принята.');
-581:     await loadPartner();
-582:     await loadPartnerAcceptedRequests(); 
+       alert('Заявка принята.');
+    await loadPartner();
+    await loadPartnerAcceptedRequests();
   }catch(e){
     alert('Не удалось принять заявку: ' + e.message);
   }
