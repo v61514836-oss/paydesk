@@ -1187,7 +1187,7 @@ async function createRequest(){
     if(error)throw error;
     fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/PayDesk-telegram-notify',{
   method:'POST',
-  headers:{'Content-Type':'application/json'},
+  headers:{'Content-Type':'application/json','apikey':KEY},
   body:JSON.stringify({
     event:'request_created',
     requestId:data.id,
