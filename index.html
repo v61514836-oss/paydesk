@@ -859,7 +859,7 @@ async function adminLoadPartnerSettings(){
 
     const {data, error} = await db
       .from('partner_accounts')
-      .select('user_id,external_deposit_verified,external_deposit_note,test_balance,max_request_amount,max_active_requests,is_enabled')
+      .select('user_id,external_deposit_verified,external_deposit_note,deposit_eur,reserved_eur,is_enabled')
       .eq('user_id', id)
       .maybeSingle();
 
@@ -868,9 +868,7 @@ async function adminLoadPartnerSettings(){
 
     $('partnerAdminDepositVerified').checked =
       !!data.external_deposit_verified;
-    $('partnerAdminBalance').value = data.test_balance ?? 0;
-    $('partnerAdminMaxRequest').value = data.max_request_amount ?? 0;
-    $('partnerAdminMaxActive').value = data.max_active_requests ?? 3;
+    $('partnerAdminDeposit').value = data.deposit_eur ?? 0;
     $('partnerAdminEnabled').checked = !!data.is_enabled;
     $('partnerAdminNote').value = data.external_deposit_note || '';
 
