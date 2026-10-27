@@ -415,6 +415,67 @@ a {
 
 <div id="adminProfiles"></div>
   </div>
+      <div class="card">
+    <h2>Управление партнёрами</h2>
+
+    <label for="partnerAdminSearch">ID пользователя-партнёра</label>
+    <input id="partnerAdminSearch"
+           type="text"
+           placeholder="Вставь ID партнёра">
+
+    <label for="partnerAdminDeposit">Подтверждённый депозит</label>
+    <input id="partnerAdminDeposit"
+           type="number"
+           min="0"
+           step="0.01"
+           placeholder="Сумма депозита">
+
+    <label for="partnerAdminBalance">Тестовый баланс</label>
+    <input id="partnerAdminBalance"
+           type="number"
+           min="0"
+           step="0.01"
+           placeholder="Тестовый баланс">
+
+    <label for="partnerAdminMaxRequest">Лимит одной заявки</label>
+    <input id="partnerAdminMaxRequest"
+           type="number"
+           min="0"
+           step="0.01"
+           placeholder="Максимальная сумма">
+
+    <label for="partnerAdminMaxActive">Максимум активных заявок</label>
+    <input id="partnerAdminMaxActive"
+           type="number"
+           min="0"
+           step="1"
+           placeholder="Количество заявок">
+
+    <label>
+      <input id="partnerAdminDepositVerified" type="checkbox">
+      Депозит проверен и подтверждён
+    </label>
+
+    <label>
+      <input id="partnerAdminEnabled" type="checkbox" checked>
+      Партнёр включён
+    </label>
+
+    <label for="partnerAdminNote">Комментарий</label>
+    <input id="partnerAdminNote"
+           type="text"
+           placeholder="Примечание администратора">
+
+    <button id="partnerAdminLoad" class="full">
+      Загрузить данные партнёра
+    </button>
+
+    <button id="partnerAdminSave" class="full">
+      Сохранить настройки партнёра
+    </button>
+
+    <p id="partnerAdminMessage" class="muted"></p>
+  </div>
 </section>
   
 <section id="partner" class="hidden">
