@@ -532,8 +532,7 @@ function loggedIn(account,role){
   $('accountEmail').textContent=account.email||'';
   $('accountRole').textContent=role||'customer';
   $('adminTab').hidden=(role!=='admin');
-  $('authPanel').classList.add('hidden');
-  $('accountPanel').classList.remove('hidden');
+ const authPanel = $('authPanel'); const accountPanel = $('accountPanel'); if (authPanel) authPanel.classList.add('hidden'); if (accountPanel) accountPanel.classList.remove('hidden');
   $('chatFab').hidden=false;
   
 if (unreadRefreshTimer) clearInterval(unreadRefreshTimer);
