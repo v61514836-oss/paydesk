@@ -1576,7 +1576,7 @@ async function sendChatMessage() {
 }
 
 $('sendChatButton').addEventListener('click', sendChatMessage);
-
+$('attachImageButton').addEventListener('click', () => {
 async function recordWorkflowAction(action) {
   if (!db || !user || !activeChatRequestId) {
     message('chatStatus', 'Сначала открой чат заявки.');
