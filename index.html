@@ -383,6 +383,42 @@ a {
     <div id="adminProfiles"></div>
   </div>
 </section>
+  
+<section id="partner" class="hidden">
+  <div class="card">
+    <h2>Панель партнёра</h2>
+    <p class="muted">
+      Здесь отображаются твой тестовый баланс,
+      лимиты и доступные заявки.
+    </p>
+    <p>Статус депозита:
+      <strong id="partnerDepositStatus">Не подтверждён</strong>
+    </p>
+    <p>Тестовый баланс:
+      <strong id="partnerTestBalance">0.00</strong>
+    </p>
+    <p>Максимум на одну заявку:
+      <strong id="partnerMaxRequest">0.00</strong>
+    </p>
+    <p>Лимит активных заявок:
+      <strong id="partnerMaxActive">0</strong>
+    </p>
+    <p id="partnerMessage" class="muted">
+      Загрузка данных партнёра…
+    </p>
+    <button id="partnerRefresh" class="full" type="button">
+      Обновить данные
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Доступные заявки</h2>
+    <div id="partnerRequests">
+      <p class="muted">Заявки пока не загружены.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 <button id="chatFab" type="button" hidden
   style="position:fixed;right:16px;bottom:18px;z-index:9999;width:auto;border-radius:30px">
