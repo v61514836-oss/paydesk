@@ -415,7 +415,7 @@ a {
 
 <div id="adminProfiles"></div>
   </div>
-      <div class="card">
+      <div id="partnerAdminManagement" class="card hidden">
     <h2>Управление партнёрами</h2>
 
     <label for="partnerAdminSearch">ID пользователя-партнёра</label>
@@ -951,7 +951,10 @@ function loggedIn(account,role){
 if(partnerTab) partnerTab.classList.toggle('hidden',role!=='partner');
 const adminTab = $('adminTab');
 if (adminTab) adminTab.classList.toggle('hidden', role !== 'admin');
-
+const partnerAdminManagement = $('partnerAdminManagement');
+if (partnerAdminManagement) {
+  partnerAdminManagement.classList.toggle('hidden', role !== 'admin');
+}
  const authPanel = $('authPanel'); const accountPanel = $('accountPanel'); if (authPanel) authPanel.classList.add('hidden'); if (accountPanel) accountPanel.classList.remove('hidden');
   $('chatFab').hidden=false;
   
