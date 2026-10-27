@@ -447,13 +447,11 @@ a {
            type="text"
            placeholder="Примечание администратора">
 
-    <button id="partnerAdminLoad" class="full">
-      Загрузить данные партнёра
-    </button>
+  
 
     <button id="partnerAdminSave" class="full">
-      Сохранить настройки партнёра
-    </button>
+  Подтвердить депозит
+</button>
 
     <p id="partnerAdminMessage" class="muted"></p>
   </div>
@@ -926,9 +924,7 @@ async function adminSavePartnerSettings() {
 $('partnerAdminLoad').addEventListener(
   'click', adminLoadPartnerSettings
 );
-$('partnerAdminSave').addEventListener(
-  'click', adminSavePartnerSettings
-);
+
 
 $('adminRefresh').addEventListener('click',loadAdmin);
 $('adminRequests').addEventListener('click', e => {
