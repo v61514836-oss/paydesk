@@ -454,7 +454,7 @@ function escapeHTML(value){
 }
 
 function showTab(tab){
-  ['exchange','requests','info','admin'].forEach(id=>{
+  ['exchange','requests','info','admin','partner'].forEach(id=>{
     $(id).classList.toggle('hidden',id!==tab);
   });
   document.querySelectorAll('[data-tab]').forEach(btn=>{
