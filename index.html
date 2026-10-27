@@ -897,7 +897,8 @@ async function adminSavePartnerSettings() {
         user_id: id,
         deposit_eur: deposit,
         external_deposit_verified: true,
-          $('partnerAdminNote').value.trim() || null,
+external_deposit_note:
+  $('partnerAdminNote').value.trim() || null,
         is_enabled: $('partnerAdminEnabled').checked,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
