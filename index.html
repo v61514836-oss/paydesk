@@ -593,17 +593,9 @@ async function loadAdmin(){
         <button type="button" data-chat-request="${escapeHTML(r.id)}">Открыть чат</button>
       </div>`).join('')||'<p>Заявок нет.</p>';
 
-    $('adminProfiles').innerHTML=(pr.data||[]).map(p=>`
-      <div class="request">
-        <p class="muted">ID: ${escapeHTML(p.id)}</p>
-        <label>Роль</label>
-        <select id="admin-role-${escapeHTML(p.id)}">
-          ${['customer','partner','admin'].map(s=>
-            `<option value="${s}" ${p.role===s?'selected':''}>${s}</option>`
-          ).join('')}
-        </select>
-        <button data-admin-role="${escapeHTML(p.id)}">Сохранить роль</button>
-      </div>`).join('')||'<p>Пользователей нет.</p>';
+  
+renderAdminProfiles(pr.data || []);
+ 
 
     message('adminMessage','Заявок: '+rq.data.length+
       '; пользователей: '+pr.data.length+'.');
@@ -611,6 +603,59 @@ async function loadAdmin(){
     message('adminMessage','Ошибка: '+e.message);
   }
 }
+
+function renderAdminProfiles(profiles) {
+  $('adminProfiles').innerHTML = (profiles || []).map(p => `
+    <div class="request">
+      <p><b>${escapeHTML(p.email || 'Email не указан')}</b></p>
+      <p class="muted">ID: ${escapeHTML(p.id)}</p>
+      <label>Роль</label>
+      <select id="admin-role-${escapeHTML(p.id)}">
+        ${['customer','partner','admin'].map(s =>
+          `<option value="${s}" ${p.role===s?'selected':''}>${s}</option>`
+        ).join('')}
+      </select>
+      <button data-admin-role="${escapeHTML(p.id)}">
+        Сохранить роль
+      </button>
+    </div>
+  `).join('') || '<p>Пользователь не найден.</p>';
+}
+
+async function searchAdminProfiles() {
+  if (!db || !user || await profileRole(user.id) !== 'admin') return;
+
+  const term = $('adminUserSearch').value.trim();
+
+  if (!term) {
+    await loadAdmin();
+    return;
+  }
+
+  message('adminMessage', 'Ищем пользователя…');
+
+  try {
+    let query = db.from('profiles')
+      .select('id,role,email');
+
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(term)) {
+      query = query.eq('id', term);
+    } else {
+      query = query.ilike('email', '%' + term + '%');
+    }
+
+    const { data, error } = await query.limit(50);
+
+    if (error) throw error;
+
+    renderAdminProfiles(data || []);
+    message('adminMessage', 'Найдено пользователей: ' + (data || []).length);
+  } catch (e) {
+    message('adminMessage', 'Ошибка поиска: ' + e.message);
+  }
+}
+
+$('adminUserSearch').addEventListener('input', searchAdminProfiles);
 
 async function adminSaveStatus(id){
   try{
