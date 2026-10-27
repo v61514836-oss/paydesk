@@ -559,6 +559,10 @@ async function acceptPartnerRequest(id){
 }
 
 async function loadPartner(){
+    if(!db || !user){
+    message('partnerMessage','Сначала войди в аккаунт.');
+    return;
+  }
   message('partnerMessage','Загружаем данные партнёра…');
 
   try{
