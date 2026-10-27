@@ -1489,30 +1489,48 @@ const rolesById = Object.fromEntries(
       return;
     }
 
-    data.forEach(item => {
+        for (const item of data) {
       const row = document.createElement('div');
       row.className = 'request';
 
-const who = document.createElement('b');
-
-if (item.sender_id === user.id) {
-  who.textContent = 'Ты';
-} else {
-  who.textContent = '';
-}
-
-      const body = document.createElement('p');
-      body.style.whiteSpace = 'pre-wrap';
-      body.textContent = item.message;
+      const who = document.createElement('b');
+      who.textContent = item.sender_id === user.id ? 'Ты' : '';
 
       const date = document.createElement('p');
       date.className = 'muted';
-      date.textContent =
-        new Date(item.created_at).toLocaleString('ru-RU');
+      date.textContent = new Date(item.created_at).toLocaleString('ru-RU');
 
-      row.append(who, body, date);
+      const marker = '[[paydesk-image:';
+
+      if (item.message.startsWith(marker) && item.message.endsWith(']]')) {
+        const path = item.message.slice(marker.length, -2);
+        const { data: imageData, error: imageError } =
+          await db.storage.from('chat-attachments').createSignedUrl(path, 3600);
+
+        if (imageError) {
+          const unavailable = document.createElement('p');
+          unavailable.textContent = 'Не удалось открыть фотографию.';
+          row.append(who, unavailable, date);
+        } else {
+          const img = document.createElement('img');
+          img.src = imageData.signedUrl;
+          img.alt = 'Фото в чате';
+          img.style.maxWidth = '100%';
+          img.style.maxHeight = '400px';
+          img.style.objectFit = 'contain';
+          img.style.display = 'block';
+          img.style.margin = '10px 0';
+          row.append(who, img, date);
+        }
+      } else {
+        const body = document.createElement('p');
+        body.style.whiteSpace = 'pre-wrap';
+        body.textContent = item.message;
+        row.append(who, body, date);
+      }
+
       box.appendChild(row);
-    });
+    }
 
     message('chatStatus', '');
   } catch (e) {
