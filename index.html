@@ -1060,6 +1060,14 @@ async function register(){
   try{
     const {data,error}=await db.auth.signUp({email,password});
     if(error) throw error;
+    fetch('https://xnaiqqlfewgpkylzcneg.supabase.co/functions/v1/telegram-notify',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+    event:'registration',
+    email:email
+  })
+}).catch(console.error);
     if(data.session&&data.user){
       loggedIn(data.user,'customer');
       message('accountMessage','Аккаунт создан.');
