@@ -1027,6 +1027,28 @@ $('requestList').addEventListener('click', e => {
 document.querySelectorAll('[data-tab]').forEach(btn=>{
   btn.addEventListener('click',()=>showTab(btn.dataset.tab));
 });
+ 
+const currencyByCountry = {
+  Germany: 'EUR',
+  Netherlands: 'EUR',
+  France: 'EUR',
+  Italy: 'EUR',
+  Spain: 'EUR',
+  Ukraine: 'UAH',
+  Russia: 'RUB',
+  Poland: 'PLN',
+  Czechia: 'CZK',
+  Romania: 'RON'
+};
+
+$('fromCountry').addEventListener('change', function () {
+  const currency = currencyByCountry[this.value];
+
+  if (currency) {
+    $('from').value = currency;
+  }
+});
+ 
 $('loginButton').addEventListener('click',login);
 $('registerButton').addEventListener('click',register);
   $('resetPasswordButton').addEventListener('click',sendPasswordReset);
