@@ -585,14 +585,13 @@ $('partnerAvailableEur').textContent='0.00 €';
     $('partnerDepositStatus').textContent=
       account.external_deposit_verified ? 'Подтверждён' : 'Не подтверждён';
 
-    $('partnerTestBalance').textContent=
-      Number(account.test_balance || 0).toFixed(2);
+    const deposit=Number(account.deposit_eur || 0);
+const reserved=Number(account.reserved_eur || 0);
+const available=Math.max(0,deposit-reserved);
 
-    $('partnerMaxRequest').textContent=
-      Number(account.max_request_amount || 0).toFixed(2);
-
-    $('partnerMaxActive').textContent=
-      String(account.max_active_requests ?? 0);
+$('partnerDepositEur').textContent=deposit.toFixed(2)+' €';
+$('partnerReservedEur').textContent=reserved.toFixed(2)+' €';
+$('partnerAvailableEur').textContent=available.toFixed(2)+' €';
 
     const enabled=account.is_enabled &&
       account.external_deposit_verified;
