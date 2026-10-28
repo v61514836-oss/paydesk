@@ -1577,6 +1577,65 @@ async function sendChatMessage() {
 
 $('sendChatButton').addEventListener('click', sendChatMessage);
 $('attachImageButton').addEventListener('click', () => {
+  $('chatImageInput').click();
+});
+
+$('chatImageInput').addEventListener('change', async () => {
+  const file = $('chatImageInput').files[0];
+  if (!file) return;
+
+  if (!db || !user || !activeChatRequestId) {
+    message('chatImageStatus', 'Сначала открой чат заявки.');
+    return;
+  }
+
+  if (!file.type.startsWith('image/')) {
+    message('chatImageStatus', 'Выбери изображение.');
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    message('chatImageStatus', 'Максимальный размер — 10 МБ.');
+    return;
+  }
+
+  const button = $('attachImageButton');
+  button.disabled = true;
+  message('chatImageStatus', 'Загружаю фотографию…');
+
+  let uploadedPath = null;
+
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${activeChatRequestId}/${user.id}/${crypto.randomUUID()}-${safeName}`;
+
+    const { error: uploadError } = await db.storage
+      .from('chat-attachments')
+      .upload(path, file, {
+        upsert: false,
+        contentType: file.type
+      });
+
+    if (uploadError) throw uploadError;
+    uploadedPath = path;
+
+    const { error: messageError } = await db.from('chat_messages').insert({
+      request_id: activeChatRequestId,
+      sender_id: user.id,
+      message: `[[paydesk-image:${path}]]`
+    });
+
+    if (messageError) throw messageError;
+
+    $('chatImageInput').value = '';
+    await loadChatMessages();
+    message('chatImageStatus', 'Фотография отправлена.');
+  } catch (e) {
+    message('chatImageStatus', 'Ошибка отправки: ' + e.message);
+  } finally {
+    button.disabled = false;
+  }
+});
 async function recordWorkflowAction(action) {
   if (!db || !user || !activeChatRequestId) {
     message('chatStatus', 'Сначала открой чат заявки.');
