@@ -1325,8 +1325,9 @@ contact='@'+contact;
     event:'request_created',
     requestId:data.id,
     amount:amount,
-    fromCurrency:from,
-    country:country
+   fromCurrency:from,
+country:country,
+contact:contact
   })
 }).catch(console.error);
     $('amount').value='';
