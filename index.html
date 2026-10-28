@@ -341,10 +341,10 @@ a {
 <label for="toCurrency">Получаешь</label>
 <input id="toCurrency" value="USDT" readonly>
 
-<label for="contact">Контакт для связи</label>
-<input id="contact" maxlength="200" placeholder="Telegram или другой контакт" autocomplete="off">
-<p class="muted">Не указывай пароли, коды подтверждения или данные банковской карты.</p>
-
+<label for="contact">Telegram username — обязательно</label>
+<input id="contact" type="text" maxlength="33"
+       placeholder="@username" autocomplete="off" required>
+<p class="muted">Укажи Telegram username, например @nikita123. Не отправляй пароли или коды.</p>
 <button id="createButton" class="full" type="button">Создать заявку</button>
 <p id="createMessage" class="muted" role="status"></p>
 </div>
