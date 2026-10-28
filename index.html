@@ -1288,7 +1288,17 @@ async function createRequest(){
   const amount=Number($('amount').value);
   const from=$('from').value;
   const country=$('fromCountry').value;
-  const contact=$('contact').value.trim();
+let contact=$('contact').value.trim();
+
+if(contact.startsWith('@')) contact=contact.slice(1);
+
+if(!/^[A-Za-z0-9_]{5,32}$/.test(contact)){
+  message('createMessage','Укажи корректный Telegram username, например @nikita123.');
+  $('contact').focus();
+  return;
+}
+
+contact='@'+contact;
   if(!user){message('createMessage','Сначала войди в аккаунт.');showTab('exchange');return;}
   if(!Number.isFinite(amount)||amount<=0){message('createMessage','Введи сумму больше нуля.');return;}
   if(from==='USDT'){message('createMessage','Выбери валюту отправления, отличную от USDT.');return;}
